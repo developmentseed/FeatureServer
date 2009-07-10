@@ -1,0 +1,83 @@
+<?php
+
+include_once('fserver.features.inc');
+
+/**
+ * Implementation of hook_views_api().
+ */
+function fserver_views_api() {
+  return array('api' => 2);
+}
+
+/**
+ * Implementation of hook_link().
+ */
+function fserver_link($type, $object, $teaser = FALSE) {
+  $links = array();
+  if ($type == 'node' && $object->type == 'fserver_project') {
+    $item = menu_get_item('node/add/fserver-release');
+    if ($item && $item['access']) {
+      $links['fserver-add-release'] = array(
+        'title' => t('Add new @release', array('@release' => strtolower($item['title']))),
+        'href' => 'node/add/fserver-release',
+      );
+    }
+  }
+  return $links;
+}
+
+/**
+ * Implementation of hook_nodeapi().
+ */
+function fserver_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
+  if ($op == 'view' && $node->type == 'fserver_project' && menu_get_object() === $node) {
+    if (node_access('update', $node) && !empty($node->field_fserver_name[0]['safe'])) {
+      $shortname = $node->field_fserver_name[0]['safe'];
+      $node->content['project_info'] = array(
+        '#value' => theme('fserver_project_info', $shortname),
+        '#weight' => -10,
+      );
+    }
+  }
+}
+
+/**
+ * Implementation of hook_theme().
+ */
+function fserver_theme() {
+  return array(
+    'fserver_project_info' => array('arguments' => array('shortname' => NULL)),
+  );
+}
+
+/**
+ * Display project feed information.
+ */
+function theme_fserver_project_info($name) {
+  $header = array(array('data' => t('Update XML feeds'), 'colspan' => 2));
+  $rows = array();
+  foreach (fserver_cck_options('core') as $branch) {
+    $rows[] = array(t('Drupal-!branch', array('!branch' => $branch)), l(url("fserver/{$name}/{$branch}", array('absolute' => TRUE)), "fserver/{$name}/{$branch}"));
+  }
+  $rows[] = array(array(
+    'data' => "<div class='description'>". t('Use these URLs in your features to allow them to receive updates from this site.') ."</div>",
+    'colspan' => 2,
+  ));
+  return theme('table', $header, $rows, array('class' => 'fserver-project-info'));
+}
+
+/**
+ * Option field callback for version options.
+ */
+function fserver_cck_options($type = 'core') {
+  switch ($type) {
+    case 'core':
+      return array('5.x' => '5.x', '6.x' => '6.x', '7.x' => '7.x');
+    case 'major':
+      return array(1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5, 6 => 6, 7 => 7, 8 => 8, 9 => 9);
+    case 'patch':
+      return array(0 => 0, 1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5, 6 => 6, 7 => 7, 8 => 8, 9 => 9);
+    case 'recommended':
+      return array(0 => t('Not recommended'), 1 => t('Recommended'));
+  }
+}
