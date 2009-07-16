@@ -62,7 +62,7 @@ function _fserver_content_default_fields() {
     'field_name' => 'field_fserver_api',
     'type_name' => 'fserver_release',
     'display_settings' => array(
-      'weight' => '-13',
+      'weight' => '-10',
       'parent' => '',
       'label' => array(
         'format' => 'hidden',
@@ -93,12 +93,12 @@ function _fserver_content_default_fields() {
     'widget' => array(
       'default_value' => array(
         '0' => array(
-          'value' => '',
+          'value' => '6.x',
         ),
       ),
       'default_value_php' => NULL,
       'label' => 'Core compatibility',
-      'weight' => '-13',
+      'weight' => '-10',
       'description' => '',
       'type' => 'optionwidgets_select',
       'module' => 'optionwidgets',
@@ -110,7 +110,7 @@ function _fserver_content_default_fields() {
     'field_name' => 'field_fserver_file',
     'type_name' => 'fserver_release',
     'display_settings' => array(
-      'weight' => '-8',
+      'weight' => '-13',
       'parent' => '',
       'label' => array(
         'format' => 'hidden',
@@ -144,7 +144,7 @@ function _fserver_content_default_fields() {
       'max_filesize_per_file' => '',
       'max_filesize_per_node' => '',
       'label' => 'Package',
-      'weight' => '-8',
+      'weight' => '-13',
       'description' => '',
       'type' => 'filefield_widget',
       'module' => 'filefield',
@@ -156,7 +156,7 @@ function _fserver_content_default_fields() {
     'field_name' => 'field_fserver_project',
     'type_name' => 'fserver_release',
     'display_settings' => array(
-      'weight' => '-14',
+      'weight' => '-11',
       'parent' => '',
       'label' => array(
         'format' => 'inline',
@@ -197,7 +197,7 @@ function _fserver_content_default_fields() {
       ),
       'default_value_php' => NULL,
       'label' => 'Project',
-      'weight' => '-14',
+      'weight' => '-11',
       'description' => '',
       'type' => 'nodereference_select',
       'module' => 'nodereference',
@@ -209,7 +209,7 @@ function _fserver_content_default_fields() {
     'field_name' => 'field_fserver_recommended',
     'type_name' => 'fserver_release',
     'display_settings' => array(
-      'weight' => '-9',
+      'weight' => '-6',
       'parent' => '',
       'label' => array(
         'format' => 'hidden',
@@ -240,14 +240,62 @@ function _fserver_content_default_fields() {
     'widget' => array(
       'default_value' => array(
         '0' => array(
-          'value' => '',
+          'value' => 0,
         ),
       ),
       'default_value_php' => NULL,
       'label' => 'Recommended',
-      'weight' => '-9',
+      'weight' => '-6',
+      'description' => 'The recommended releases will be displayed on the project page. The latest recommended release per major version will be offered for update status.',
+      'type' => 'optionwidgets_onoff',
+      'module' => 'optionwidgets',
+    ),
+  );
+
+  // Exported field: field_fserver_security
+  $fields[] = array(
+    'field_name' => 'field_fserver_security',
+    'type_name' => 'fserver_release',
+    'display_settings' => array(
+      'weight' => '-5',
+      'parent' => '',
+      'label' => array(
+        'format' => 'hidden',
+      ),
+      'teaser' => array(
+        'format' => 'hidden',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'hidden',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'text',
+    'required' => '0',
+    'multiple' => '0',
+    'module' => 'text',
+    'active' => '1',
+    'text_processing' => '0',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => 'return fserver_cck_options(\'security\');',
+    'widget' => array(
+      'default_value' => array(
+        '0' => array(
+          'value' => 'Not a security release',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Security release',
+      'weight' => '-5',
       'description' => '',
-      'type' => 'optionwidgets_select',
+      'type' => 'optionwidgets_onoff',
       'module' => 'optionwidgets',
     ),
   );
@@ -257,7 +305,7 @@ function _fserver_content_default_fields() {
     'field_name' => 'field_fserver_versionextra',
     'type_name' => 'fserver_release',
     'display_settings' => array(
-      'weight' => '-10',
+      'weight' => '-7',
       'parent' => '',
       'label' => array(
         'format' => 'hidden',
@@ -296,7 +344,7 @@ function _fserver_content_default_fields() {
       ),
       'default_value_php' => NULL,
       'label' => 'Extra version',
-      'weight' => '-10',
+      'weight' => '-7',
       'description' => '',
       'type' => 'text_textfield',
       'module' => 'text',
@@ -308,7 +356,7 @@ function _fserver_content_default_fields() {
     'field_name' => 'field_fserver_versionmajor',
     'type_name' => 'fserver_release',
     'display_settings' => array(
-      'weight' => '-12',
+      'weight' => '-9',
       'parent' => '',
       'label' => array(
         'format' => 'hidden',
@@ -344,7 +392,7 @@ function _fserver_content_default_fields() {
       ),
       'default_value_php' => NULL,
       'label' => 'Major version',
-      'weight' => '-12',
+      'weight' => '-9',
       'description' => '',
       'type' => 'optionwidgets_select',
       'module' => 'optionwidgets',
@@ -356,7 +404,7 @@ function _fserver_content_default_fields() {
     'field_name' => 'field_fserver_versionpatch',
     'type_name' => 'fserver_release',
     'display_settings' => array(
-      'weight' => '-11',
+      'weight' => '-8',
       'parent' => '',
       'label' => array(
         'format' => 'hidden',
@@ -392,7 +440,7 @@ function _fserver_content_default_fields() {
       ),
       'default_value_php' => NULL,
       'label' => 'Patch version',
-      'weight' => '-11',
+      'weight' => '-8',
       'description' => '',
       'type' => 'optionwidgets_select',
       'module' => 'optionwidgets',
@@ -409,6 +457,7 @@ function _fserver_content_default_fields() {
     t('Patch version'),
     t('Project'),
     t('Recommended'),
+    t('Security release'),
   );
 
   return $fields;
@@ -632,6 +681,12 @@ function _fserver_views_default_views() {
     'description' => '',
     'weight' => 0,
   ));
+  $translatables['fserver_projects'] = array(
+    t('Defaults'),
+    t('Projects'),
+    t('There are currently no projects available.'),
+    t('Page'),
+  );
 
   $views[$view->name] = $view;
 
@@ -658,176 +713,12 @@ function _fserver_views_default_views() {
     ),
   ));
   $handler->override_option('fields', array(
-    'field_fserver_api_value' => array(
-      'label' => 'Core compatibility',
-      'alter' => array(
-        'alter_text' => 0,
-        'text' => '',
-        'make_link' => 0,
-        'path' => '',
-        'link_class' => '',
-        'alt' => '',
-        'prefix' => '',
-        'suffix' => '',
-        'help' => '',
-        'trim' => 0,
-        'max_length' => '',
-        'word_boundary' => 1,
-        'ellipsis' => 1,
-        'strip_tags' => 0,
-        'html' => 0,
-      ),
-      'link_to_node' => 0,
-      'label_type' => 'widget',
-      'format' => 'default',
-      'multiple' => array(
-        'group' => TRUE,
-        'multiple_number' => '',
-        'multiple_from' => '',
-        'multiple_reversed' => FALSE,
-      ),
-      'exclude' => 1,
-      'id' => 'field_fserver_api_value',
-      'table' => 'node_data_field_fserver_api',
-      'field' => 'field_fserver_api_value',
-      'override' => array(
-        'button' => 'Override',
-      ),
-      'relationship' => 'none',
-    ),
-    'field_fserver_versionmajor_value' => array(
-      'label' => 'Major version',
-      'alter' => array(
-        'alter_text' => 0,
-        'text' => '',
-        'make_link' => 0,
-        'path' => '',
-        'link_class' => '',
-        'alt' => '',
-        'prefix' => '',
-        'suffix' => '',
-        'help' => '',
-        'trim' => 0,
-        'max_length' => '',
-        'word_boundary' => 1,
-        'ellipsis' => 1,
-        'strip_tags' => 0,
-        'html' => 0,
-      ),
-      'link_to_node' => 0,
-      'label_type' => 'widget',
-      'format' => 'default',
-      'multiple' => array(
-        'group' => TRUE,
-        'multiple_number' => '',
-        'multiple_from' => '',
-        'multiple_reversed' => FALSE,
-      ),
-      'exclude' => 1,
-      'id' => 'field_fserver_versionmajor_value',
-      'table' => 'node_data_field_fserver_versionmajor',
-      'field' => 'field_fserver_versionmajor_value',
-      'relationship' => 'none',
-    ),
-    'field_fserver_versionpatch_value' => array(
-      'label' => 'Patch version',
-      'alter' => array(
-        'alter_text' => 0,
-        'text' => '',
-        'make_link' => 0,
-        'path' => '',
-        'link_class' => '',
-        'alt' => '',
-        'prefix' => '',
-        'suffix' => '',
-        'help' => '',
-        'trim' => 0,
-        'max_length' => '',
-        'word_boundary' => 1,
-        'ellipsis' => 1,
-        'strip_tags' => 0,
-        'html' => 0,
-      ),
-      'link_to_node' => 0,
-      'label_type' => 'widget',
-      'format' => 'default',
-      'multiple' => array(
-        'group' => TRUE,
-        'multiple_number' => '',
-        'multiple_from' => '',
-        'multiple_reversed' => FALSE,
-      ),
-      'exclude' => 1,
-      'id' => 'field_fserver_versionpatch_value',
-      'table' => 'node_data_field_fserver_versionpatch',
-      'field' => 'field_fserver_versionpatch_value',
-      'relationship' => 'none',
-    ),
-    'field_fserver_versionextra_value' => array(
-      'label' => 'Extra version',
-      'alter' => array(
-        'alter_text' => 0,
-        'text' => '',
-        'make_link' => 0,
-        'path' => '',
-        'link_class' => '',
-        'alt' => '',
-        'prefix' => '',
-        'suffix' => '',
-        'help' => '',
-        'trim' => 0,
-        'max_length' => '',
-        'word_boundary' => 1,
-        'ellipsis' => 1,
-        'strip_tags' => 0,
-        'html' => 0,
-      ),
-      'link_to_node' => 0,
-      'label_type' => 'widget',
-      'format' => 'default',
-      'multiple' => array(
-        'group' => TRUE,
-        'multiple_number' => '',
-        'multiple_from' => '',
-        'multiple_reversed' => FALSE,
-      ),
-      'exclude' => 1,
-      'id' => 'field_fserver_versionextra_value',
-      'table' => 'node_data_field_fserver_versionextra',
-      'field' => 'field_fserver_versionextra_value',
-      'relationship' => 'none',
-    ),
-    'view_node' => array(
-      'label' => '',
-      'alter' => array(
-        'alter_text' => 0,
-        'text' => '',
-        'make_link' => 0,
-        'path' => '',
-        'link_class' => '',
-        'alt' => '',
-        'prefix' => '',
-        'suffix' => '',
-        'help' => '',
-        'trim' => 0,
-        'max_length' => '',
-        'word_boundary' => 1,
-        'ellipsis' => 1,
-        'strip_tags' => 0,
-        'html' => 0,
-      ),
-      'text' => 'Notes',
-      'exclude' => 1,
-      'id' => 'view_node',
-      'table' => 'node',
-      'field' => 'view_node',
-      'relationship' => 'none',
-    ),
-    'nothing' => array(
+    'release_tag' => array(
       'label' => 'Release',
       'alter' => array(
-        'text' => '[field_fserver_api_value]-[field_fserver_versionmajor_value]-[field_fserver_versionpatch_value] [field_fserver_versionextra_value] ([view_node])',
-        'make_link' => 1,
+        'alter_text' => 0,
+        'text' => '',
+        'make_link' => 0,
         'path' => '',
         'link_class' => '',
         'alt' => '',
@@ -842,9 +733,9 @@ function _fserver_views_default_views() {
         'html' => 0,
       ),
       'exclude' => 0,
-      'id' => 'nothing',
+      'id' => 'release_tag',
       'table' => 'views',
-      'field' => 'nothing',
+      'field' => 'release_tag',
       'relationship' => 'none',
     ),
     'filesize' => array(
@@ -910,7 +801,36 @@ function _fserver_views_default_views() {
         'button' => 'Override',
       ),
     ),
-    'changed' => array(
+    'view_node' => array(
+      'label' => '',
+      'alter' => array(
+        'alter_text' => 0,
+        'text' => '',
+        'make_link' => 0,
+        'path' => '',
+        'link_class' => '',
+        'alt' => '',
+        'prefix' => '',
+        'suffix' => '',
+        'help' => '',
+        'trim' => 0,
+        'max_length' => '',
+        'word_boundary' => 1,
+        'ellipsis' => 1,
+        'strip_tags' => 0,
+        'html' => 0,
+      ),
+      'text' => 'Release notes',
+      'exclude' => 0,
+      'id' => 'view_node',
+      'table' => 'node',
+      'field' => 'view_node',
+      'relationship' => 'none',
+      'override' => array(
+        'button' => 'Override',
+      ),
+    ),
+    'created' => array(
       'label' => 'Date',
       'alter' => array(
         'alter_text' => 0,
@@ -932,56 +852,56 @@ function _fserver_views_default_views() {
       'date_format' => 'custom',
       'custom_date_format' => 'M j Y',
       'exclude' => 0,
-      'id' => 'changed',
+      'id' => 'created',
       'table' => 'node',
-      'field' => 'changed',
+      'field' => 'created',
+      'relationship' => 'none',
+    ),
+    'field_fserver_api_value' => array(
+      'label' => 'Core compatibility',
+      'alter' => array(
+        'alter_text' => 0,
+        'text' => '',
+        'make_link' => 0,
+        'path' => '',
+        'link_class' => '',
+        'alt' => '',
+        'prefix' => '',
+        'suffix' => '',
+        'help' => '',
+        'trim' => 0,
+        'max_length' => '',
+        'word_boundary' => 1,
+        'ellipsis' => 1,
+        'strip_tags' => 0,
+        'html' => 0,
+      ),
+      'link_to_node' => 0,
+      'label_type' => 'widget',
+      'format' => 'default',
+      'multiple' => array(
+        'group' => TRUE,
+        'multiple_number' => '',
+        'multiple_from' => '',
+        'multiple_reversed' => FALSE,
+      ),
+      'exclude' => 1,
+      'id' => 'field_fserver_api_value',
+      'table' => 'node_data_field_fserver_api',
+      'field' => 'field_fserver_api_value',
       'relationship' => 'none',
     ),
   ));
   $handler->override_option('sorts', array(
-    'field_fserver_api_value' => array(
+    'release_tag' => array(
       'order' => 'DESC',
-      'delta' => -1,
-      'id' => 'field_fserver_api_value',
-      'table' => 'node_data_field_fserver_api',
-      'field' => 'field_fserver_api_value',
+      'id' => 'release_tag',
+      'table' => 'views',
+      'field' => 'release_tag',
+      'relationship' => 'none',
       'override' => array(
         'button' => 'Override',
       ),
-      'relationship' => 'none',
-    ),
-    'field_fserver_versionmajor_value' => array(
-      'order' => 'DESC',
-      'delta' => -1,
-      'id' => 'field_fserver_versionmajor_value',
-      'table' => 'node_data_field_fserver_versionmajor',
-      'field' => 'field_fserver_versionmajor_value',
-      'override' => array(
-        'button' => 'Override',
-      ),
-      'relationship' => 'none',
-    ),
-    'field_fserver_versionpatch_value' => array(
-      'order' => 'DESC',
-      'delta' => -1,
-      'id' => 'field_fserver_versionpatch_value',
-      'table' => 'node_data_field_fserver_versionpatch',
-      'field' => 'field_fserver_versionpatch_value',
-      'override' => array(
-        'button' => 'Override',
-      ),
-      'relationship' => 'none',
-    ),
-    'field_fserver_versionextra_value' => array(
-      'order' => 'DESC',
-      'delta' => -1,
-      'id' => 'field_fserver_versionextra_value',
-      'table' => 'node_data_field_fserver_versionextra',
-      'field' => 'field_fserver_versionextra_value',
-      'override' => array(
-        'button' => 'Override',
-      ),
-      'relationship' => 'none',
     ),
   ));
   $handler->override_option('arguments', array(
@@ -1014,7 +934,8 @@ function _fserver_views_default_views() {
       'validate_argument_node_type' => array(
         'fserver_project' => 0,
         'fserver_release' => 0,
-        'image' => 0,
+        'page' => 0,
+        'story' => 0,
       ),
       'validate_argument_node_access' => 0,
       'validate_argument_nid_type' => 'nid',
@@ -1072,34 +993,38 @@ function _fserver_views_default_views() {
   $handler->override_option('use_pager', '1');
   $handler->override_option('style_plugin', 'table');
   $handler->override_option('style_options', array(
-    'grouping' => '',
+    'grouping' => 'field_fserver_api_value',
     'override' => 1,
     'sticky' => 0,
     'order' => 'asc',
     'columns' => array(
+      'release_tag' => 'release_tag',
       'filesize' => 'field_fserver_file_fid',
-      'title' => 'title',
-      'nid' => 'nid',
       'field_fserver_file_fid' => 'field_fserver_file_fid',
-      'changed' => 'changed',
+      'view_node' => 'view_node',
+      'created' => 'created',
+      'field_fserver_api_value' => 'field_fserver_api_value',
     ),
     'info' => array(
+      'release_tag' => array(
+        'sortable' => 0,
+        'separator' => '',
+      ),
       'filesize' => array(
-        'sortable' => 0,
-        'separator' => '',
-      ),
-      'title' => array(
-        'sortable' => 0,
-        'separator' => '',
-      ),
-      'nid' => array(
         'sortable' => 0,
         'separator' => '',
       ),
       'field_fserver_file_fid' => array(
         'separator' => '',
       ),
-      'changed' => array(
+      'view_node' => array(
+        'separator' => '',
+      ),
+      'created' => array(
+        'sortable' => 0,
+        'separator' => '',
+      ),
+      'field_fserver_api_value' => array(
         'sortable' => 0,
         'separator' => '',
       ),
@@ -1159,7 +1084,7 @@ function _fserver_views_default_views() {
       'reduce_duplicates' => 0,
     ),
   ));
-  $handler->override_option('title', 'Recommended releases');
+  $handler->override_option('title', 'Releases');
   $handler->override_option('block_description', '');
   $handler->override_option('block_caching', -1);
   $handler = $view->new_display('page', 'All releases', 'page_1');
@@ -1207,6 +1132,62 @@ function _fserver_views_default_views() {
       ),
     ),
   ));
+  $handler->override_option('filters', array(
+    'status' => array(
+      'operator' => '=',
+      'value' => '1',
+      'group' => '0',
+      'exposed' => FALSE,
+      'expose' => array(
+        'operator' => FALSE,
+        'label' => '',
+      ),
+      'id' => 'status',
+      'table' => 'node',
+      'field' => 'status',
+      'relationship' => 'none',
+    ),
+    'type' => array(
+      'operator' => 'in',
+      'value' => array(
+        'fserver_release' => 'fserver_release',
+      ),
+      'group' => '0',
+      'exposed' => FALSE,
+      'expose' => array(
+        'operator' => FALSE,
+        'label' => '',
+      ),
+      'id' => 'type',
+      'table' => 'node',
+      'field' => 'type',
+      'relationship' => 'none',
+    ),
+    'field_fserver_api_value_many_to_one' => array(
+      'operator' => 'or',
+      'value' => array(),
+      'group' => '0',
+      'exposed' => TRUE,
+      'expose' => array(
+        'use_operator' => 0,
+        'operator' => 'field_fserver_api_value_many_to_one_op',
+        'identifier' => 'field_fserver_api_value_many_to_one',
+        'label' => 'Core compatibility',
+        'optional' => 1,
+        'single' => 1,
+        'remember' => 0,
+        'reduce' => 0,
+      ),
+      'id' => 'field_fserver_api_value_many_to_one',
+      'table' => 'node_data_field_fserver_api',
+      'field' => 'field_fserver_api_value_many_to_one',
+      'override' => array(
+        'button' => 'Use default',
+      ),
+      'relationship' => 'none',
+      'reduce_duplicates' => 0,
+    ),
+  ));
   $handler->override_option('path', 'node/%/releases');
   $handler->override_option('menu', array(
     'type' => 'tab',
@@ -1221,6 +1202,13 @@ function _fserver_views_default_views() {
     'description' => '',
     'weight' => 0,
   ));
+  $translatables['fserver_releases'] = array(
+    t('Defaults'),
+    t('There are no releases available for this project.'),
+    t('Recommended releases'),
+    t('Releases'),
+    t('All releases'),
+  );
 
   $views[$view->name] = $view;
 
@@ -1392,8 +1380,8 @@ function _fserver_views_default_views() {
       'field' => 'field_fserver_versionpatch_value',
       'relationship' => 'none',
     ),
-    'changed' => array(
-      'label' => 'Updated date',
+    'created' => array(
+      'label' => 'Post date',
       'alter' => array(
         'alter_text' => 0,
         'text' => '',
@@ -1414,9 +1402,9 @@ function _fserver_views_default_views() {
       'date_format' => 'custom',
       'custom_date_format' => 'U',
       'exclude' => 0,
-      'id' => 'changed',
+      'id' => 'created',
       'table' => 'node',
-      'field' => 'changed',
+      'field' => 'created',
       'relationship' => 'none',
     ),
     'title' => array(
@@ -1607,6 +1595,87 @@ function _fserver_views_default_views() {
       'field' => 'mdhash',
       'relationship' => 'field_fserver_file_fid',
     ),
+    'field_fserver_security_value' => array(
+      'label' => 'Security release',
+      'alter' => array(
+        'alter_text' => 0,
+        'text' => '',
+        'make_link' => 0,
+        'path' => '',
+        'link_class' => '',
+        'alt' => '',
+        'prefix' => '',
+        'suffix' => '',
+        'help' => '',
+        'trim' => 0,
+        'max_length' => '',
+        'word_boundary' => 1,
+        'ellipsis' => 1,
+        'strip_tags' => 0,
+        'html' => 0,
+      ),
+      'link_to_node' => 0,
+      'label_type' => 'widget',
+      'format' => 'default',
+      'multiple' => array(
+        'group' => TRUE,
+        'multiple_number' => '',
+        'multiple_from' => '',
+        'multiple_reversed' => FALSE,
+      ),
+      'exclude' => 0,
+      'id' => 'field_fserver_security_value',
+      'table' => 'node_data_field_fserver_security',
+      'field' => 'field_fserver_security_value',
+      'relationship' => 'none',
+    ),
+    'field_fserver_recommended_value' => array(
+      'label' => 'Recommended',
+      'alter' => array(
+        'alter_text' => 0,
+        'text' => '',
+        'make_link' => 0,
+        'path' => '',
+        'link_class' => '',
+        'alt' => '',
+        'prefix' => '',
+        'suffix' => '',
+        'help' => '',
+        'trim' => 0,
+        'max_length' => '',
+        'word_boundary' => 1,
+        'ellipsis' => 1,
+        'strip_tags' => 0,
+        'html' => 0,
+      ),
+      'link_to_node' => 0,
+      'label_type' => 'widget',
+      'format' => 'default',
+      'multiple' => array(
+        'group' => TRUE,
+        'multiple_number' => '',
+        'multiple_from' => '',
+        'multiple_reversed' => FALSE,
+      ),
+      'exclude' => 0,
+      'id' => 'field_fserver_recommended_value',
+      'table' => 'node_data_field_fserver_recommended',
+      'field' => 'field_fserver_recommended_value',
+      'relationship' => 'none',
+    ),
+  ));
+  $handler->override_option('sorts', array(
+    'field_fserver_versionmajor_value' => array(
+      'order' => 'DESC',
+      'delta' => -1,
+      'id' => 'field_fserver_versionmajor_value',
+      'table' => 'node_data_field_fserver_versionmajor',
+      'field' => 'field_fserver_versionmajor_value',
+      'override' => array(
+        'button' => 'Override',
+      ),
+      'relationship' => 'none',
+    ),
   ));
   $handler->override_option('arguments', array(
     'field_fserver_name_value' => array(
@@ -1693,23 +1762,6 @@ function _fserver_views_default_views() {
     ),
   ));
   $handler->override_option('filters', array(
-    'field_fserver_recommended_value_many_to_one' => array(
-      'operator' => 'or',
-      'value' => array(
-        '1' => '1',
-      ),
-      'group' => '0',
-      'exposed' => FALSE,
-      'expose' => array(
-        'operator' => FALSE,
-        'label' => '',
-      ),
-      'id' => 'field_fserver_recommended_value_many_to_one',
-      'table' => 'node_data_field_fserver_recommended',
-      'field' => 'field_fserver_recommended_value_many_to_one',
-      'relationship' => 'none',
-      'reduce_duplicates' => 0,
-    ),
     'status' => array(
       'operator' => '=',
       'value' => '1',
@@ -1768,9 +1820,11 @@ function _fserver_views_default_views() {
       'version_extra' => 'field_fserver_versionextra_value',
       'release_link' => 'nid_1',
       'download_link' => 'filepath',
-      'date' => 'changed',
+      'date' => 'created',
       'mdhash' => 'mdhash',
       'filesize' => 'filesize',
+      'security' => 'field_fserver_security_value',
+      'recommended' => 'field_fserver_recommended_value',
     ),
   ));
   $handler->override_option('row_plugin', '');
@@ -1790,6 +1844,10 @@ function _fserver_views_default_views() {
   ));
   $handler->override_option('displays', array());
   $handler->override_option('sitename_title', FALSE);
+  $translatables['fserver_updates'] = array(
+    t('Defaults'),
+    t('Update XML feed'),
+  );
 
   $views[$view->name] = $view;
 

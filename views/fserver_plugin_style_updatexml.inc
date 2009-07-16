@@ -12,7 +12,7 @@ class fserver_plugin_style_updatexml extends views_plugin_style {
    * List of release XML elements.
    */
   private function release_elements() {
-    return array('version_major', 'version_patch', 'version_extra', 'release_link', 'download_link', 'date', 'mdhash', 'filesize');
+    return array('version_major', 'version_patch', 'version_extra', 'release_link', 'download_link', 'date', 'mdhash', 'filesize', 'security', 'recommended');
   }
 
   /**
@@ -100,10 +100,14 @@ class fserver_plugin_style_updatexml extends views_plugin_style {
     }
 
     // Additional formatting for some values
-    $project['link'] = url($project['link'], array('absolute' => TRUE));
+    if (isset($project['link'])) {
+      $project['link'] =  url($project['link'], array('absolute' => TRUE));
+    }
 
     // Build release XML values
     $releases = array();
+    $project['recommended_major'] = '';
+    $project['supported_majors'] = array();
     foreach ($vars['rows'] as $num => $row) {
       foreach ($vars['options']['release'] as $element => $field) {
         if (!empty($row->{$alias})) {
@@ -111,10 +115,15 @@ class fserver_plugin_style_updatexml extends views_plugin_style {
         }
       }
 
-      // Use the first major version for the project major.
-      // @TODO: Change this so that only 1 major branch can actually be specified.
-      if (!isset($project['major'])) {
-        $project['major'] = $releases[$num]['version_major'];
+      if ($releases[$num]['recommended']) {
+        // Use the first major version for the project major.
+        // The list is sorted by "major desc", this way the latest branch will be
+        // recommended and all other branches (which have a recommended release)
+        // will be tagged as supported.
+        if (empty($project['recommended_major'])) {
+          $project['recommended_major'] = $releases[$num]['version_major'];
+        }
+        $project['supported_majors'][$releases[$num]['version_major']] = $releases[$num]['version_major'];
       }
 
       // Version
@@ -132,6 +141,8 @@ class fserver_plugin_style_updatexml extends views_plugin_style {
       // Download link
       $releases[$num]['download_link'] = file_create_url($releases[$num]['download_link']);
     }
+    sort($project['supported_majors']);
+    $project['supported_majors'] = implode(",", $project['supported_majors']);
 
     // Finalize
     $vars['project'] = $project;

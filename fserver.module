@@ -73,11 +73,46 @@ function fserver_cck_options($type = 'core') {
   switch ($type) {
     case 'core':
       return array('5.x' => '5.x', '6.x' => '6.x', '7.x' => '7.x');
+
     case 'major':
-      return array(1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5, 6 => 6, 7 => 7, 8 => 8, 9 => 9);
+      $major = range(0,50);
+      unset($major[0]);
+      return $major;
+
     case 'patch':
-      return array(0 => 0, 1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5, 6 => 6, 7 => 7, 8 => 8, 9 => 9);
+      return range(0,50);
+
     case 'recommended':
       return array(0 => t('Not recommended'), 1 => t('Recommended'));
+
+    case 'security':
+      return array(0 => t('Not a security release'), 1 => ('Security release'));
   }
 }
+
+/**
+ * Parse a package name into values: core, major, patch and extra.
+ */
+function fserver_parse_package_name($package_filename) {
+  // example: fserver-6.x-2.0-rc3.tar.gz
+  if (preg_match('/^(?<project>\w+)-(?<core>\d+\.x)-(?<major>\d+)\.(?<patch>\d+)-?(?<extra>\w+)?\.(tar\.gz|tgz)$/', $package_filename, $matches)) {
+    return $matches;
+  };
+
+  return array();
+}
+
+/**
+ * Implementation of hook_form_alter().
+ */
+ /*
+function fserver_form_alter(&$form, $form_state, $form_id) {
+  if (isset($form['#id']) && $form['#id'] == 'node-form' && !isset($form['#node']->cck_dummy_node_form) &&$form['#node']->type = 'fserver-release') {
+    $form['fserver_version_autodetect'] = array(
+      '#type' => 'button',
+      '#value' => t('Autodetect version settings'),
+      '#weight' => $form['#content_extra_fields']['title']['weight'],
+    );
+  }
+}
+*/

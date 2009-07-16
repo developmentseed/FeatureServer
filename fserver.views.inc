@@ -39,6 +39,21 @@ function fserver_views_data() {
     ),
   );
 
+  // Release tag (Content group)
+  $data['views']['release_tag'] = array(
+    'group' => t('Content'),
+    'title' => t('Release tag'),
+    'help' => t('Formatted release tag [Core].x-[Major].[Patch][-Extra]'),
+    'field' => array(
+      'handler' => 'fserver_handler_field_release_tag',
+      'click sortable' => TRUE,
+      'title' => t('Release'),
+    ),
+    'sort' => array(
+      'handler' => 'fserver_handler_sort_release_tag',
+    ),
+  );
+
   return $data;
 }
 
@@ -53,6 +68,12 @@ function fserver_views_handlers() {
     'handlers' => array(
       'fserver_handler_field_mdhash' => array(
         'parent' => 'views_handler_field',
+      ),
+      'fserver_handler_field_release_tag' => array(
+        'parent' => 'views_handler_field',
+      ),
+      'fserver_handler_sort_release_tag' => array(
+        'parent' => 'views_handler_sort',
       ),
     ),
   );

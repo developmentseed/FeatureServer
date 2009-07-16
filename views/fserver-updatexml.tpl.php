@@ -6,9 +6,9 @@
   <short_name><?php print $project['short_name'] ?></short_name>
   <api_version><?php print $project['api_version'] ?></api_version>
 
-  <recommended_major><?php print $project['major'] ?></recommended_major>
-  <supported_majors><?php print $project['major'] ?></supported_majors>
-  <default_major><?php print $project['major'] ?></default_major>
+  <recommended_major><?php print $project['recommended_major'] ?></recommended_major>
+  <supported_majors><?php print $project['supported_majors'] ?></supported_majors>
+  <default_major><?php print $project['recommended_major'] ?></default_major>
 
   <project_status>1</project_status>
 
@@ -19,10 +19,12 @@
     <release>
       <name><?php print $release['name'] ?></name>
       <version><?php print $release['version'] ?></version>
-      <tag></tag>
+
       <version_major><?php print $release['version_major'] ?></version_major>
       <version_patch><?php print $release['version_patch'] ?></version_patch>
+      <?php if (!empty($release['version_extra'])): ?>
       <version_extra><?php print $release['version_extra'] ?></version_extra>
+      <?php endif; ?>
 
       <status>published</status>
 
@@ -31,6 +33,15 @@
       <date><?php print $release['date'] ?></date>
       <mdhash><?php print $release['mdhash'] ?></mdhash>
       <filesize><?php print $release['filesize'] ?></filesize>
+
+      <?php if ($release['security']): ?>
+      <terms>
+        <term>
+          <name>Release type</name>
+          <value>Security update</value>
+        </term>
+      </terms>
+      <?php endif; ?>
     </release>
     <?php endforeach; ?>
   </releases>
