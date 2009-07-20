@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Helper to implemetation of hook_content_default_fields().
+ * Helper to implementation of hook_content_default_fields().
  */
 function _fserver_content_default_fields() {
   $fields = array();
@@ -513,7 +513,7 @@ function _fserver_menu_default_items() {
 }
 
 /**
- * Helper to implemetation of hook_node_info().
+ * Helper to implementation of hook_node_info().
  */
 function _fserver_node_info() {
   $items = array(
@@ -540,7 +540,7 @@ function _fserver_node_info() {
 }
 
 /**
- * Helper to implemetation of hook_views_default_views().
+ * Helper to implementation of hook_views_default_views().
  */
 function _fserver_views_default_views() {
   $views = array();
@@ -987,8 +987,6 @@ function _fserver_views_default_views() {
   $handler->override_option('cache', array(
     'type' => 'none',
   ));
-  $handler->override_option('empty', 'There are no releases available for this project.');
-  $handler->override_option('empty_format', '1');
   $handler->override_option('items_per_page', 25);
   $handler->override_option('use_pager', '1');
   $handler->override_option('style_plugin', 'table');
