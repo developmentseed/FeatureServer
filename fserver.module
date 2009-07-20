@@ -30,7 +30,7 @@ function fserver_link($type, $object, $teaser = FALSE) {
  * Implementation of hook_nodeapi().
  */
 function fserver_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
-  if ($op == 'view' && $node->type == 'fserver_project' && menu_get_object() === $node) {
+  if ($op == 'view' && $node->type == 'fserver_project' && menu_get_object()->nid === $node->nid) {
     if (node_access('update', $node) && !empty($node->field_fserver_name[0]['safe'])) {
       $shortname = $node->field_fserver_name[0]['safe'];
       $node->content['project_info'] = array(
@@ -56,11 +56,12 @@ function fserver_theme() {
 function theme_fserver_project_info($name) {
   $header = array(array('data' => t('Update XML feeds'), 'colspan' => 2));
   $rows = array();
+  $rows[] = array(t('Update XML'), l(url("fserver", array('purl' => array('disabled' => TRUE), 'absolute' => TRUE)), "fserver"));
   foreach (fserver_cck_options('core') as $branch) {
-    $rows[] = array(t('Drupal-!branch', array('!branch' => $branch)), l(url("fserver/{$name}/{$branch}", array('absolute' => TRUE)), "fserver/{$name}/{$branch}"));
+    $rows[] = array(t('Drupal-!branch', array('!branch' => $branch)), l(url("fserver/{$name}/{$branch}", array('purl' => array('disabled' => TRUE), 'absolute' => TRUE)), "fserver/{$name}/{$branch}"));
   }
   $rows[] = array(array(
-    'data' => "<div class='description'>". t('Use these URLs in your features to allow them to receive updates from this site.') ."</div>",
+    'data' => "<div class='description'>". t('Add the Update XML URL to this feature\'s info file to enable updates from this site.') ."</div>",
     'colspan' => 2,
   ));
   return theme('table', $header, $rows, array('class' => 'fserver-project-info'));
