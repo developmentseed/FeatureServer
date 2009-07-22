@@ -30,41 +30,53 @@ function fserver_link($type, $object, $teaser = FALSE) {
  * Implementation of hook_nodeapi().
  */
 function fserver_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
-  if ($op == 'view' && $node->type == 'fserver_project' && menu_get_object()->nid === $node->nid) {
-    if (node_access('update', $node) && !empty($node->field_fserver_name[0]['safe'])) {
-      $shortname = $node->field_fserver_name[0]['safe'];
-      $node->content['project_info'] = array(
-        '#value' => theme('fserver_project_info', $shortname),
-        '#weight' => -10,
-      );
+  if ($op == 'view' && $node->type == 'fserver_project' && menu_get_object()->nid === $node->nid && node_access('update', $node)) {
+    $node->content['project_info'] = array(
+      '#type' => 'fieldset',
+      '#description' => t('Paste this into your feature\'s info file to enable updates from this site.'),
+      'contents' => array(
+        '#type' => 'markup',
+        '#value' => '<code>project status url = "'. url("fserver", array('purl' => array('disabled' => TRUE), 'absolute' => TRUE)) .'"</code>',
+      ),
+      '#weight' => -10,
+    );
+  }
+  else if ($op == 'presave' && $node->type == 'fserver_release') {
+    $node->title = fserver_generate_version($node);
+
+    // If this release is recommended, set all other ones to not recommended.
+    if ($node->field_fserver_recommended[0]['value'] == 1) {
+      $view = views_get_view('fserver_releases');
+      $view->set_arguments(array($node->field_fserver_project[0]['nid'], $node->field_fserver_api[0]['value']));
+      $view->execute('block_1');
+      foreach ($view->result as $data) {
+        if (!isset($node->nid) || $data->nid != $node->nid) {
+          $release = node_load($data->nid);
+          $release->field_fserver_recommended[0]['value'] = 0;
+          node_save($release);
+        }
+      }
     }
   }
-}
-
-/**
- * Implementation of hook_theme().
- */
-function fserver_theme() {
-  return array(
-    'fserver_project_info' => array('arguments' => array('shortname' => NULL)),
-  );
-}
-
-/**
- * Display project feed information.
- */
-function theme_fserver_project_info($name) {
-  $header = array(array('data' => t('Update XML feeds'), 'colspan' => 2));
-  $rows = array();
-  $rows[] = array(t('Update XML'), l(url("fserver", array('purl' => array('disabled' => TRUE), 'absolute' => TRUE)), "fserver"));
-  foreach (fserver_cck_options('core') as $branch) {
-    $rows[] = array(t('Drupal-!branch', array('!branch' => $branch)), l(url("fserver/{$name}/{$branch}", array('purl' => array('disabled' => TRUE), 'absolute' => TRUE)), "fserver/{$name}/{$branch}"));
+  else if ($op == 'view' && $node->type == 'fserver_release') {
+    drupal_add_css(drupal_get_path('module', 'fserver') . '/fserver.css');
+    $download_url = url($node->field_fserver_file[0]['filepath'], array('purl' => array('disabled' => TRUE), 'absolute' => TRUE));
+    $contents = file_get_contents($node->field_fserver_file[0]['filepath']);
+    $info = array();
+    $info[] = t('Download: !url', array('!url' => l($download_url, $node->field_fserver_file[0]['filepath'])));
+    $info[] = t('md5 hash: !md5', array('!md5' => md5($contents)));
+    $info[] = t('Size: !size', array('!size' => format_size($node->field_fserver_file[0]['filesize'])));
+    $node->content['fserver_info'] = array(
+      '#type' => 'fieldset',
+      'content' => array(
+        '#type' => 'markup',
+        '#value' => theme('item_list', $info, NULL, 'ul', array('id' => 'fserver-release-info')),
+      ),
+      '#weight' => -10,
+    );
+    $project = node_load($node->field_fserver_project[0]['nid']);
+    drupal_set_breadcrumb(array(l(t('Home'), NULL), l($project->title, 'node/' . $project->nid)));
   }
-  $rows[] = array(array(
-    'data' => "<div class='description'>". t('Add the Update XML URL to this feature\'s info file to enable updates from this site.') ."</div>",
-    'colspan' => 2,
-  ));
-  return theme('table', $header, $rows, array('class' => 'fserver-project-info'));
 }
 
 /**
@@ -73,21 +85,21 @@ function theme_fserver_project_info($name) {
 function fserver_cck_options($type = 'core') {
   switch ($type) {
     case 'core':
-      return array('5.x' => '5.x', '6.x' => '6.x', '7.x' => '7.x');
+      return drupal_map_assoc(array('5.x', '6.x', '7.x'));
 
     case 'major':
-      $major = range(0,50);
+      $major = range(0, 50);
       unset($major[0]);
       return $major;
 
     case 'patch':
-      return range(0,50);
+      return range(0, 50);
 
     case 'recommended':
-      return array(0 => t('Not recommended'), 1 => t('Recommended'));
+      return array(t('Not recommended'), t('Recommended'));
 
     case 'security':
-      return array(0 => t('Not a security release'), 1 => ('Security release'));
+      return array(t('Not a security release'), t('Security release'));
   }
 }
 
@@ -104,16 +116,38 @@ function fserver_parse_package_name($package_filename) {
 }
 
 /**
- * Implementation of hook_form_alter().
+ * Implementation of hook_form_alter() for fserver_release_node_form.
  */
- /*
-function fserver_form_alter(&$form, $form_state, $form_id) {
-  if (isset($form['#id']) && $form['#id'] == 'node-form' && !isset($form['#node']->cck_dummy_node_form) &&$form['#node']->type = 'fserver-release') {
-    $form['fserver_version_autodetect'] = array(
-      '#type' => 'button',
-      '#value' => t('Autodetect version settings'),
-      '#weight' => $form['#content_extra_fields']['title']['weight'],
-    );
+function fserver_form_fserver_release_node_form_alter(&$form, $form_state, $form_id) {
+  drupal_add_css(drupal_get_path('module', 'fserver') . '/fserver.css');
+  $form['title'] = array(
+    '#type' => 'value',
+    '#value' => 'VOID',
+  );
+  $form['#submit'][] = 'fserver_node_form_submit';
+}
+
+/**
+ * Submit handler for fserver_release_node_form.
+ */
+function fserver_node_form_submit($form, &$form_state) {
+  // Only do something, if the user clicked the preview button.
+  if (isset($form_state['clicked_button']['#submit']) && in_array('node_form_build_preview', $form_state['clicked_button']['#submit'])) {
+    $node = node_submit($form_state['values']);
+    $node->title = fserver_generate_version($node);
+    $form_state['values'] = (array)$node;
   }
 }
-*/
+
+/**
+ * Generate a standard version string from a node object.
+ * @TODO: Merge this or make use of it in fserver_handler_field_release_tag::render().
+ */
+function fserver_generate_version($node) {
+  $project = node_load($node->field_fserver_project[0]['nid']);
+  $core  = $node->field_fserver_api[0]['value'];
+  $major = $node->field_fserver_versionmajor[0]['value'];
+  $patch = $node->field_fserver_versionpatch[0]['value'];
+  $extra = $node->field_fserver_versionextra[0]['value'];
+  return $project->title . " $core-$major.$patch" . (!empty($extra) ? "-$extra" : '');
+}

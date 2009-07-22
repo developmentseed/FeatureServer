@@ -69,11 +69,11 @@ function _fserver_content_default_fields() {
       ),
       'teaser' => array(
         'format' => 'hidden',
-        'exclude' => 0,
+        'exclude' => 1,
       ),
       'full' => array(
         'format' => 'hidden',
-        'exclude' => 0,
+        'exclude' => 1,
       ),
       '4' => array(
         'format' => 'default',
@@ -117,11 +117,11 @@ function _fserver_content_default_fields() {
       ),
       'teaser' => array(
         'format' => 'hidden',
-        'exclude' => 0,
+        'exclude' => 1,
       ),
       'full' => array(
         'format' => 'hidden',
-        'exclude' => 0,
+        'exclude' => 1,
       ),
       '4' => array(
         'format' => 'default',
@@ -159,15 +159,15 @@ function _fserver_content_default_fields() {
       'weight' => '-11',
       'parent' => '',
       'label' => array(
-        'format' => 'inline',
+        'format' => 'hidden',
       ),
       'teaser' => array(
-        'format' => 'default',
-        'exclude' => 0,
+        'format' => 'hidden',
+        'exclude' => 1,
       ),
       'full' => array(
-        'format' => 'default',
-        'exclude' => 0,
+        'format' => 'hidden',
+        'exclude' => 1,
       ),
       '4' => array(
         'format' => 'default',
@@ -216,11 +216,11 @@ function _fserver_content_default_fields() {
       ),
       'teaser' => array(
         'format' => 'hidden',
-        'exclude' => 0,
+        'exclude' => 1,
       ),
       'full' => array(
         'format' => 'hidden',
-        'exclude' => 0,
+        'exclude' => 1,
       ),
       '4' => array(
         'format' => 'default',
@@ -264,11 +264,11 @@ function _fserver_content_default_fields() {
       ),
       'teaser' => array(
         'format' => 'hidden',
-        'exclude' => 0,
+        'exclude' => 1,
       ),
       'full' => array(
         'format' => 'hidden',
-        'exclude' => 0,
+        'exclude' => 1,
       ),
       '4' => array(
         'format' => 'default',
@@ -312,11 +312,11 @@ function _fserver_content_default_fields() {
       ),
       'teaser' => array(
         'format' => 'hidden',
-        'exclude' => 0,
+        'exclude' => 1,
       ),
       'full' => array(
         'format' => 'hidden',
-        'exclude' => 0,
+        'exclude' => 1,
       ),
       '4' => array(
         'format' => 'default',
@@ -363,11 +363,11 @@ function _fserver_content_default_fields() {
       ),
       'teaser' => array(
         'format' => 'hidden',
-        'exclude' => 0,
+        'exclude' => 1,
       ),
       'full' => array(
         'format' => 'hidden',
-        'exclude' => 0,
+        'exclude' => 1,
       ),
       '4' => array(
         'format' => 'default',
@@ -411,11 +411,11 @@ function _fserver_content_default_fields() {
       ),
       'teaser' => array(
         'format' => 'hidden',
-        'exclude' => 0,
+        'exclude' => 1,
       ),
       'full' => array(
         'format' => 'hidden',
-        'exclude' => 0,
+        'exclude' => 1,
       ),
       '4' => array(
         'format' => 'default',
@@ -713,8 +713,8 @@ function _fserver_views_default_views() {
     ),
   ));
   $handler->override_option('fields', array(
-    'release_tag' => array(
-      'label' => 'Release',
+    'nid' => array(
+      'label' => 'Nid',
       'alter' => array(
         'alter_text' => 0,
         'text' => '',
@@ -732,10 +732,42 @@ function _fserver_views_default_views() {
         'strip_tags' => 0,
         'html' => 0,
       ),
+      'link_to_node' => 0,
+      'exclude' => 1,
+      'id' => 'nid',
+      'table' => 'node',
+      'field' => 'nid',
+      'override' => array(
+        'button' => 'Override',
+      ),
+      'relationship' => 'none',
+    ),
+    'release_tag' => array(
+      'label' => 'Release',
+      'alter' => array(
+        'alter_text' => 0,
+        'text' => '',
+        'make_link' => 1,
+        'path' => 'node/[nid]',
+        'link_class' => '',
+        'alt' => '',
+        'prefix' => '',
+        'suffix' => '',
+        'help' => '',
+        'trim' => 0,
+        'max_length' => '',
+        'word_boundary' => 1,
+        'ellipsis' => 1,
+        'strip_tags' => 0,
+        'html' => 0,
+      ),
       'exclude' => 0,
       'id' => 'release_tag',
       'table' => 'views',
       'field' => 'release_tag',
+      'override' => array(
+        'button' => 'Override',
+      ),
       'relationship' => 'none',
     ),
     'filesize' => array(
@@ -948,6 +980,50 @@ function _fserver_views_default_views() {
         'button' => 'Override',
       ),
     ),
+    'field_fserver_api_value' => array(
+      'default_action' => 'ignore',
+      'style_plugin' => 'default_summary',
+      'style_options' => array(),
+      'wildcard' => 'all',
+      'wildcard_substitution' => 'All',
+      'title' => '',
+      'breadcrumb' => '',
+      'default_argument_type' => 'fixed',
+      'default_argument' => '',
+      'validate_type' => 'none',
+      'validate_fail' => 'not found',
+      'add_table' => 0,
+      'require_value' => 0,
+      'reduce_duplicates' => 0,
+      'id' => 'field_fserver_api_value',
+      'table' => 'node_data_field_fserver_api',
+      'field' => 'field_fserver_api_value',
+      'validate_user_argument_type' => 'uid',
+      'validate_user_roles' => array(
+        '2' => 0,
+      ),
+      'override' => array(
+        'button' => 'Override',
+      ),
+      'relationship' => 'none',
+      'default_options_div_prefix' => '',
+      'default_argument_user' => 0,
+      'default_argument_fixed' => '',
+      'default_argument_php' => '',
+      'validate_argument_node_type' => array(
+        'fserver_project' => 0,
+        'fserver_release' => 0,
+        'page' => 0,
+        'story' => 0,
+      ),
+      'validate_argument_node_access' => 0,
+      'validate_argument_nid_type' => 'nid',
+      'validate_argument_vocabulary' => array(),
+      'validate_argument_type' => 'tid',
+      'validate_argument_transform' => 0,
+      'validate_user_restrict_roles' => 0,
+      'validate_argument_php' => '',
+    ),
   ));
   $handler->override_option('filters', array(
     'status' => array(
@@ -991,12 +1067,12 @@ function _fserver_views_default_views() {
   $handler->override_option('use_pager', '1');
   $handler->override_option('style_plugin', 'table');
   $handler->override_option('style_options', array(
-    'grouping' => 'field_fserver_api_value',
+    'grouping' => '',
     'override' => 1,
     'sticky' => 0,
     'order' => 'asc',
     'columns' => array(
-      'release_tag' => 'release_tag',
+      'title' => 'title',
       'filesize' => 'field_fserver_file_fid',
       'field_fserver_file_fid' => 'field_fserver_file_fid',
       'view_node' => 'view_node',
@@ -1004,7 +1080,7 @@ function _fserver_views_default_views() {
       'field_fserver_api_value' => 'field_fserver_api_value',
     ),
     'info' => array(
-      'release_tag' => array(
+      'title' => array(
         'sortable' => 0,
         'separator' => '',
       ),
@@ -1083,6 +1159,8 @@ function _fserver_views_default_views() {
     ),
   ));
   $handler->override_option('title', 'Releases');
+  $handler->override_option('items_per_page', 0);
+  $handler->override_option('use_pager', '0');
   $handler->override_option('block_description', '');
   $handler->override_option('block_caching', -1);
   $handler = $view->new_display('page', 'All releases', 'page_1');
@@ -1128,62 +1206,6 @@ function _fserver_views_default_views() {
       'override' => array(
         'button' => 'Use default',
       ),
-    ),
-  ));
-  $handler->override_option('filters', array(
-    'status' => array(
-      'operator' => '=',
-      'value' => '1',
-      'group' => '0',
-      'exposed' => FALSE,
-      'expose' => array(
-        'operator' => FALSE,
-        'label' => '',
-      ),
-      'id' => 'status',
-      'table' => 'node',
-      'field' => 'status',
-      'relationship' => 'none',
-    ),
-    'type' => array(
-      'operator' => 'in',
-      'value' => array(
-        'fserver_release' => 'fserver_release',
-      ),
-      'group' => '0',
-      'exposed' => FALSE,
-      'expose' => array(
-        'operator' => FALSE,
-        'label' => '',
-      ),
-      'id' => 'type',
-      'table' => 'node',
-      'field' => 'type',
-      'relationship' => 'none',
-    ),
-    'field_fserver_api_value_many_to_one' => array(
-      'operator' => 'or',
-      'value' => array(),
-      'group' => '0',
-      'exposed' => TRUE,
-      'expose' => array(
-        'use_operator' => 0,
-        'operator' => 'field_fserver_api_value_many_to_one_op',
-        'identifier' => 'field_fserver_api_value_many_to_one',
-        'label' => 'Core compatibility',
-        'optional' => 1,
-        'single' => 1,
-        'remember' => 0,
-        'reduce' => 0,
-      ),
-      'id' => 'field_fserver_api_value_many_to_one',
-      'table' => 'node_data_field_fserver_api',
-      'field' => 'field_fserver_api_value_many_to_one',
-      'override' => array(
-        'button' => 'Use default',
-      ),
-      'relationship' => 'none',
-      'reduce_duplicates' => 0,
     ),
   ));
   $handler->override_option('path', 'node/%/releases');

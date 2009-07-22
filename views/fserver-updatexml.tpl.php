@@ -14,6 +14,13 @@
 
   <link><?php print $project['link'] ?></link>
 
+  <terms>
+    <term>
+      <name>Projects</name>
+      <value>Modules</value>
+    </term>
+  </terms>
+
   <releases>
     <?php foreach ($releases as $release): ?>
     <release>

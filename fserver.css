@@ -1,0 +1,17 @@
+div#edit-field-fserver-api-value-wrapper,
+div#edit-field-fserver-versionmajor-value-wrapper,
+div#edit-field-fserver-versionpatch-value-wrapper,
+div#edit-field-fserver-versionextra-0-value-wrapper {
+  float: left;
+  margin-right: 1em;
+}
+div#edit-field-fserver-recommended-value-wrapper {
+  clear: both;
+}
+ul#fserver-release-info,
+ul#fserver-release-info li {
+  list-style: none;
+  background: 0;
+  margin: 0;
+  padding: 0;
+}

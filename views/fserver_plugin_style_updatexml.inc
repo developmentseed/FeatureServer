@@ -40,9 +40,6 @@ class fserver_plugin_style_updatexml extends views_plugin_style {
    * Render the given style.
    */
   function options_form(&$form, &$form_state) {
-    // parent::options_form($form, $form_state);
-    // $form['#theme'] = 'febp_elbat_options';
-
     // Build list of valid fields
     $options = array();
     $handlers = $this->display->handler->get_handlers('field');
@@ -110,6 +107,7 @@ class fserver_plugin_style_updatexml extends views_plugin_style {
     $project['supported_majors'] = array();
     foreach ($vars['rows'] as $num => $row) {
       foreach ($vars['options']['release'] as $element => $field) {
+        $alias = $fields[$field]->field_alias;
         if (!empty($row->{$alias})) {
           $releases[$num][$element] = $fields[$field]->theme($row);
         }
