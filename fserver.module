@@ -118,7 +118,7 @@ function fserver_parse_package_name($package_filename) {
 /**
  * Implementation of hook_form_alter() for fserver_release_node_form.
  */
-function fserver_form_fserver_release_node_form_alter(&$form, $form_state, $form_id) {
+function fserver_form_fserver_release_node_form_alter(&$form, $form_state) {
   drupal_add_css(drupal_get_path('module', 'fserver') . '/fserver.css');
   $form['title'] = array(
     '#type' => 'value',
