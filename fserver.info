@@ -1,6 +1,8 @@
 core = "6.x"
 package = "Features"
 project = "fserver"
+project status url = "http://code.developmentseed.org/fserver"
+version = "1.0-alpha1"
 name = "Feature Server"
 description = "Provides feature projects and releases."
 features[content][] = "fserver_project-field_fserver_name"
