@@ -89,7 +89,7 @@ class fserver_plugin_style_updatexml extends views_plugin_style {
     foreach ($vars['options']['project'] as $element => $field) {
       $alias = $fields[$field]->field_alias;
       foreach ($vars['rows'] as $row) {
-        if (!empty($row->{$alias})) {
+        if (isset($row->{$alias})) {
           $project[$element] = $fields[$field]->theme($row);
           continue;
         }
@@ -108,8 +108,16 @@ class fserver_plugin_style_updatexml extends views_plugin_style {
     foreach ($vars['rows'] as $num => $row) {
       foreach ($vars['options']['release'] as $element => $field) {
         $alias = $fields[$field]->field_alias;
-        if (!empty($row->{$alias})) {
-          $releases[$num][$element] = $fields[$field]->theme($row);
+        if (isset($row->{$alias})) {
+          switch ($element) {
+            case 'recommended':
+            case 'security':
+              $releases[$num][$element] = check_plain($row->{$alias});
+              break;
+            default:
+              $releases[$num][$element] = $fields[$field]->theme($row);
+              break;
+          }
         }
       }
 
