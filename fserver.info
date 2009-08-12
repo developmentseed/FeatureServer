@@ -1,7 +1,6 @@
 core = "6.x"
 package = "Features"
-feature_uri = "http://localhost/d6"
-feature_timestamp = "1245598273"
+project = "fserver"
 name = "Feature Server"
 description = "Provides feature projects and releases."
 features[content][] = "fserver_project-field_fserver_name"
