@@ -57,6 +57,54 @@ function _fserver_content_default_fields() {
     ),
   );
 
+  // Exported field: field_fserver_type
+  $fields[] = array(
+    'field_name' => 'field_fserver_type',
+    'type_name' => 'fserver_project',
+    'display_settings' => array(
+      'weight' => '-3',
+      'parent' => '',
+      'label' => array(
+        'format' => 'hidden',
+      ),
+      'teaser' => array(
+        'format' => 'hidden',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'hidden',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'text',
+    'required' => '1',
+    'multiple' => '0',
+    'module' => 'text',
+    'active' => '1',
+    'text_processing' => '0',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => 'return fserver_cck_options(\'type\');',
+    'widget' => array(
+      'default_value' => array(
+        '0' => array(
+          'value' => '',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Type',
+      'weight' => '-3',
+      'description' => '',
+      'type' => 'optionwidgets_select',
+      'module' => 'optionwidgets',
+    ),
+  );
+
   // Exported field: field_fserver_api
   $fields[] = array(
     'field_name' => 'field_fserver_api',
@@ -458,6 +506,7 @@ function _fserver_content_default_fields() {
     t('Project'),
     t('Recommended'),
     t('Security release'),
+    t('Type'),
   );
 
   return $fields;

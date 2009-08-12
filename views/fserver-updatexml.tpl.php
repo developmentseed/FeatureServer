@@ -17,7 +17,7 @@
   <terms>
     <term>
       <name>Projects</name>
-      <value>Modules</value>
+      <value><?php print $project['type'] ?></value>
     </term>
   </terms>
 

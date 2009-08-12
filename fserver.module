@@ -100,6 +100,10 @@ function fserver_cck_options($type = 'core') {
 
     case 'security':
       return array(t('Not a security release'), t('Security release'));
+
+    case 'type':
+      // We don't use t() here as the update XML requires these strings to be uniform.
+      return array('module' => 'Modules', 'theme' => 'Themes');
   }
 }
 
