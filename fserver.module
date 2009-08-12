@@ -61,7 +61,7 @@ function fserver_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
   else if ($op == 'view' && $node->type == 'fserver_release') {
     drupal_add_css(drupal_get_path('module', 'fserver') . '/fserver.css');
     $download_url = url($node->field_fserver_file[0]['filepath'], array('purl' => array('disabled' => TRUE), 'absolute' => TRUE));
-    $contents = file_get_contents($node->field_fserver_file[0]['filepath']);
+    $contents = file_exists($node->field_fserver_file[0]['filepath']) ? file_get_contents($node->field_fserver_file[0]['filepath']) : '';
     $info = array();
     $info[] = t('Download: !url', array('!url' => l($download_url, $node->field_fserver_file[0]['filepath'])));
     $info[] = t('md5 hash: !md5', array('!md5' => md5($contents)));
