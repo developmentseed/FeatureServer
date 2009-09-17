@@ -7,7 +7,7 @@ function _fserver_node_info() {
   $items = array(
     'fserver_project' => array(
       'name' => t('Project'),
-      'module' => 'node',
+      'module' => 'features',
       'description' => t('A feature project page. Provides a summary of project information and releases for download.'),
       'has_title' => '1',
       'title_label' => t('Project'),
@@ -16,7 +16,7 @@ function _fserver_node_info() {
     ),
     'fserver_release' => array(
       'name' => t('Release'),
-      'module' => 'node',
+      'module' => 'features',
       'description' => t('A single release package for a feature.'),
       'has_title' => '1',
       'title_label' => t('Release'),
