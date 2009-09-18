@@ -2,6 +2,16 @@
 // $Id$
 
 /**
+@TODO:
+(10:38:30 AM) Adrian Rossouw: if you need drush to be able to modify the files dir
+(10:38:47 AM) Adrian Rossouw: you need to add : umask(0002) to your settings.php
+(10:38:53 AM) Adrian Rossouw: drupal 6.x has a crazy bug in it
+(10:39:10 AM) Adrian Rossouw: that all uploaded files are 600 , owned by the web server user
+(10:39:15 AM) Adrian Rossouw: so your drush script can't modify it
+(10:39:20 AM) Adrian Rossouw: or change the perms, or anythin
+*/
+
+/**
  * Implementation of hook_drush_command().
  *
  * @See drush_parse_command() for a list of recognized keys.
@@ -34,6 +44,9 @@ function fserver_drush_help($section) {
   }
 }
 
+/**
+ * Package new releases for a specified project or all.
+ */
 function fserver_drush_package() {
   $projects = _fserver_drush_get_projects();
 
@@ -155,6 +168,9 @@ function _fserver_drush_get_projects() {
   return $projects;
 }
 
+/**
+ * Project class. Contains helpful methods for detecting tags, packaging, etc.
+ */
 class FserverProject {
   var $node, $name, $method, $repository;
 
@@ -231,6 +247,26 @@ class FserverProject {
           foreach ($output as $vc) {
             $parsed = fserver_parse_tag_name($vc);
             if (isset($parsed['core'], $parsed['major'], $parsed['patch'])) {
+              // Retrieve tag info
+              drush_op('drush_shell_exec', "git --git-dir={$this->path}/{$this->name}/.git show {$vc}");
+              $info = drush_shell_exec_output();
+              if ($info[0] == "tag {$vc}") {
+                $info = implode("\n", $info);
+                $info = explode("\n\n", $info);
+                list($tag, $commit, $message) = $info;
+
+                $tag = explode("\n", $tag);
+                array_shift($tag); // Removes tag line
+                array_shift($tag); // Removes author line
+
+                // Set timestamp on the tag
+                $date = array_shift($tag);
+                $date = strtotime(trim(substr($date, strpos($date, ':') + 1)));
+                if (is_numeric($date)) {
+                  $parsed['timestamp'] = $date;
+                }
+              }
+
               $parsed['vc'] = $vc;
               $parsed['core']  = is_numeric($parsed['core']) ? "{$parsed['core']}.x" : $parsed['core'];
               $version = "{$parsed['core']}-{$parsed['major']}.{$parsed['patch']}" . (!empty($parsed['extra']) ? "-{$parsed['extra']}" : '');
@@ -255,10 +291,10 @@ class FserverProject {
       $node = new stdClass();
       $node->type = 'fserver_release';
       $node->status = 1;
-      $node->created = time();
+      $node->created = !empty($tag['timestamp']) ? $tag['timestamp'] : time();
       $node->uid = $this->node->uid;
       $node->title = "{$this->name} {$tag_id}";
-      $node->body = '';
+      $node->body = !empty($tag['message']) ? $tag['message'] : '';
 
       $node->field_fserver_file = array(0 => (array) $file);
       $node->field_fserver_project = array(0 => array('nid' => $this->node->nid));
