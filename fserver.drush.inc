@@ -56,12 +56,17 @@ function fserver_drush_package() {
       if (!empty($new_tags)) {
         foreach ($new_tags as $tag_id => $tag) {
           $release = $project->create_release($tag_id);
-          $rows[] = array($project->node->title, $tag_id, $release->field_fserver_file[0]['filepath']);
+          $rows[] = array($project->node->title, $tag_id, $release->field_fserver_file[0]['filename']);
         }
       }
     }
-    array_unshift($rows, array(dt('Project'), dt('Release'), dt('Filepath')));
-    drush_print_table($rows, TRUE);
+    if (!empty($rows)) {
+      array_unshift($rows, array(dt('Project'), dt('Release'), dt('Filename')));
+      drush_print_table($rows, TRUE);
+    }
+    else {
+      drush_print(dt('All projects are up to date. No packages were created.'));
+    }
     _fserver_drush_projects_destroy();
   }
 }
@@ -85,13 +90,12 @@ function fserver_drush_status() {
   }
 
   if (_fserver_drush_projects_init($projects)) {
-    $rows = array(array(dt('ID'), dt('Project'), dt('Packaging method'), dt('New tags')));
+    $rows = array(array(dt('Method'), dt('Project'), dt('New tags')));
     foreach ($projects as $project) {
       $new_tags = $project->get_new_tags();
       $rows[] = array(
-        $project->name,
+        $project->method,
         $project->node->title,
-        $project->repository,
         !empty($new_tags) ? implode(', ',array_keys($new_tags)) : dt("Up to date"),
       );
     }
