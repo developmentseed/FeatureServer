@@ -57,6 +57,11 @@ function fserver_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
       '#weight' => -10,
     );
   }
+  else if ($op == 'presave' && $node->type == 'fserver_project') {
+    if (empty($node->field_fserver_method[0]['value'])) {
+      $node->field_fserver_repository[0]['value'] = '';
+    }
+  }
   else if ($op == 'presave' && $node->type == 'fserver_release') {
     $node->title = fserver_generate_version($node);
 
@@ -159,6 +164,24 @@ function fserver_parse_tag_name($tag) {
 }
 
 /**
+ * Implementation of hook_form_alter() for fserver_project_node_form.
+ */
+function fserver_form_fserver_project_node_form_alter(&$form, $form_state) {
+  drupal_add_js(drupal_get_path('module', 'fserver') . '/fserver.js');
+  $form['#validate'][] = 'fserver_project_node_form_validate';
+}
+
+/**
+ * Validate handler for fserver_project_node_form.
+ */
+function fserver_project_node_form_validate($form, &$form_state) {
+  // Ensure repository URL is set if using a non-manual method.
+  if (!empty($form_state['values']['field_fserver_method'][0]['value']) && empty($form_state['values']['field_fserver_repository'][0]['value'])) {
+    form_set_error($form_state['values']['field_fserver_repository'][0]['_error_element'], t('Please provide a valid repository URL for this project.'));
+  }
+}
+
+/**
  * Implementation of hook_form_alter() for fserver_release_node_form.
  */
 function fserver_form_fserver_release_node_form_alter(&$form, $form_state) {
@@ -167,18 +190,18 @@ function fserver_form_fserver_release_node_form_alter(&$form, $form_state) {
     '#type' => 'value',
     '#value' => 'VOID',
   );
-  $form['#submit'][] = 'fserver_node_form_submit';
+  $form['#submit'][] = 'fserver_release_node_form_submit';
 }
 
 /**
  * Submit handler for fserver_release_node_form.
  */
-function fserver_node_form_submit($form, &$form_state) {
+function fserver_release_node_form_submit($form, &$form_state) {
   // Only do something, if the user clicked the preview button.
   if (isset($form_state['clicked_button']['#submit']) && in_array('node_form_build_preview', $form_state['clicked_button']['#submit'])) {
     $node = node_submit($form_state['values']);
     $node->title = fserver_generate_version($node);
-    $form_state['values'] = (array)$node;
+    $form_state['values'] = (array) $node;
   }
 }
 
