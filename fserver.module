@@ -21,7 +21,10 @@ function fserver_strongarm() {
  * Implementation of hook_views_api().
  */
 function fserver_views_api() {
-  return array('api' => 2);
+  return array(
+    'api' => 2,
+    'path' => drupal_get_path('module', 'fserver') .'/views',
+  );
 }
 
 /**
