@@ -161,7 +161,13 @@ function fserver_parse_package_name($package_filename) {
 function fserver_parse_tag_name($tag) {
   // example: drupal-6--1-0-alpha1
   if (preg_match('/^(?<project>\w+)-(?<core>\d+)--(?<major>\d+)-(?<patch>\d+)-?(?<extra>\w+)?$/', $tag, $matches)) {
-    return $matches;
+    $parsed = array_intersect_key($matches, array('core' => '', 'major' => '', 'patch' => '', 'extra' => ''));
+    if (!empty($parsed)) {
+      $parsed['core'] = "{$parsed['core']}.x";
+      $parsed['original'] = $tag;
+      $parsed['version'] = "{$parsed['core']}-{$parsed['major']}.{$parsed['patch']}" . (!empty($parsed['extra']) ? "-{$parsed['extra']}" : '');
+      return $parsed;
+    }
   }
   return array();
 }

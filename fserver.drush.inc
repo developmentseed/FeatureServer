@@ -48,6 +48,10 @@ function fserver_drush_help($section) {
  * Package new releases for a specified project or all.
  */
 function fserver_drush_package() {
+  if (!drush_get_option('uri') && !drush_get_option('l')) {
+    drush_die('You must use the --uri option to specify the location of this site.');
+  }
+
   $projects = _fserver_drush_get_projects();
 
   // Filter the project list by the argument.
@@ -62,25 +66,22 @@ function fserver_drush_package() {
     }
   }
 
-  if (_fserver_drush_projects_init($projects)) {
-    $rows = array();
-    foreach ($projects as $project) {
-      $new_tags = $project->get_new_tags();
-      if (!empty($new_tags)) {
-        foreach ($new_tags as $tag_id => $tag) {
-          $release = $project->create_release($tag_id);
-          $rows[] = array($project->node->title, $tag_id, $release->field_fserver_file[0]['filename']);
-        }
+  $rows = array();
+  foreach ($projects as $project) {
+    $new_tags = $project->get_new_tags();
+    if (!empty($new_tags)) {
+      foreach ($new_tags as $tag_id => $tag) {
+        $release = $project->create_release($tag_id);
+        $rows[] = array($project->node->title, $tag_id, $release->field_fserver_file[0]['filename']);
       }
     }
-    if (!empty($rows)) {
-      array_unshift($rows, array(dt('Project'), dt('Release'), dt('Filename')));
-      drush_print_table($rows, TRUE);
-    }
-    else {
-      drush_print(dt('All projects are up to date. No packages were created.'));
-    }
-    _fserver_drush_projects_destroy();
+  }
+  if (!empty($rows)) {
+    array_unshift($rows, array(dt('Project'), dt('Release'), dt('Filename')));
+    drush_print_table($rows, TRUE);
+  }
+  else {
+    drush_print(dt('All projects are up to date. No packages were created.'));
   }
 }
 
@@ -102,53 +103,16 @@ function fserver_drush_status() {
     }
   }
 
-  if (_fserver_drush_projects_init($projects)) {
-    $rows = array(array(dt('Method'), dt('Project'), dt('New tags')));
-    foreach ($projects as $project) {
-      $new_tags = $project->get_new_tags();
-      $rows[] = array(
-        $project->method,
-        $project->node->title,
-        !empty($new_tags) ? implode(', ',array_keys($new_tags)) : dt("Up to date"),
-      );
-    }
-    drush_print_table($rows, TRUE);
-    _fserver_drush_projects_destroy();
+  $rows = array(array(dt('Method'), dt('Project'), dt('New tags')));
+  foreach ($projects as $project) {
+    $new_tags = $project->get_new_tags();
+    $rows[] = array(
+      $project->method,
+      $project->node->title,
+      !empty($new_tags) ? implode(', ',array_keys($new_tags)) : dt("Up to date"),
+    );
   }
-}
-
-/**
- * Wrapper around temporary directory.
- */
-function _fserver_drush_get_tmpdir() {
-  static $path;
-  if (!isset($path)) {
-    $path = file_directory_temp() . '/fserver_'. time();
-  }
-  return $path;
-}
-
-/**
- * Initialize projects in filesystem.
- */
-function _fserver_drush_projects_init($projects = array()) {
-  $path = _fserver_drush_get_tmpdir();
-  $tmpdir = drush_op('mkdir', $path, 0777, TRUE);
-  if ($tmpdir) {
-    foreach ($projects as $project) {
-      $project->init_wc($path);
-    }
-    return TRUE;
-  }
-  return FALSE;
-}
-
-/**
- * Destroy projects in filesystem.
- */
-function _fserver_drush_projects_destroy($path) {
-  $path = _fserver_drush_get_tmpdir();
-  drush_op('drush_shell_exec', "rm -rf {$path}");
+  drush_print_table($rows, TRUE);
 }
 
 /**
@@ -185,14 +149,23 @@ class FserverProject {
   }
 
   /**
+   * Destructor.
+   */
+  function __destruct() {
+    if (isset($this->path)) {
+      drush_op('drush_shell_exec', "rm -rf {$this->path}");
+    }
+  }
+
+  /**
    * Initialize a working copy for this project.
    */
-  function init_wc($base_path = '') {
-    if (function_exists('_fserver_drush_get_tmpdir') && !isset($this->path)) {
-      $this->path = !empty($base_path) ? "{$base_path}/{$this->name}" : $this->name;
+  function init_wc() {
+    if (!isset($this->path)) {
+      $this->path = file_directory_temp() . '/fserver_'. $this->name .'_'. time();
       switch ($this->method) {
         case 'git':
-          drush_op('drush_shell_exec', "git clone {$this->repository} {$this->path}/{$this->name}");
+          drush_op('drush_shell_exec', "git clone {$this->repository} {$this->path}");
           break;
       }
     }
@@ -202,14 +175,11 @@ class FserverProject {
    * Get new tags that have no corresponding release nodes.
    */
   function get_new_tags() {
-    $this->init_wc();
     $new_tags = array();
-    if ($this->path) {
-      $releases = $this->get_releases();
-      foreach ($this->get_tags() as $tag_id => $tag) {
-        if (!isset($releases[$tag_id])) {
-          $new_tags[$tag_id] = $tag;
-        }
+    $releases = $this->get_releases();
+    foreach ($this->get_tags() as $tag_id => $tag) {
+      if (!isset($releases[$tag_id])) {
+        $new_tags[$tag_id] = $tag;
       }
     }
     return $new_tags;
@@ -232,62 +202,63 @@ class FserverProject {
     return $this->releases;
   }
 
+  function get_tag($tag_id) {
+    $tags = $this->get_tags();
+    if (isset($tags[$tag_id])) {
+      $vc = $tags[$tag_id];
+      $tag = fserver_parse_tag_name($vc);
+      $this->init_wc();
+
+      // Retrieve tag info
+      drush_op('drush_shell_exec', "git --git-dir={$this->path}/.git show {$vc}");
+      $info = drush_shell_exec_output();
+      if ($info[0] == "tag {$vc}") {
+        $info = implode("\n", $info);
+        $info = explode("\n\n", $info);
+        list($basic, $commit, $message) = $info;
+
+        $basic = explode("\n", $basic);
+        array_shift($basic); // Removes tag line
+        array_shift($basic); // Removes author line
+
+        // Set timestamp on the tag
+        $date = array_shift($basic);
+        $date = strtotime(trim(substr($date, strpos($date, ':') + 1)));
+        $tag['timestamp'] = is_numeric($date) ? $date : time();
+      }
+      return $tag;
+    }
+  }
+
   /**
   * Get tags for this project.
   */
   function get_tags() {
-    $this->init_wc();
-
-    if ($this->path && !isset($this->tags)) {
+    if (!isset($this->tags)) {
       $this->tags = array();
       switch ($this->method) {
         case 'git':
-          drush_op('drush_shell_exec', "git --git-dir={$this->path}/{$this->name}/.git tag -l");
-          $output = drush_shell_exec_output();
-          foreach ($output as $vc) {
+          drush_op('drush_shell_exec', "git ls-remote --tags {$this->repository} | awk '{print $2;}'");
+          $lines = drush_shell_exec_output();
+          while ($line = array_shift($lines)) {
+            $vc = array_pop(explode('/', $line));
             $parsed = fserver_parse_tag_name($vc);
-            if (isset($parsed['core'], $parsed['major'], $parsed['patch'])) {
-              // Retrieve tag info
-              drush_op('drush_shell_exec', "git --git-dir={$this->path}/{$this->name}/.git show {$vc}");
-              $info = drush_shell_exec_output();
-              if ($info[0] == "tag {$vc}") {
-                $info = implode("\n", $info);
-                $info = explode("\n\n", $info);
-                list($tag, $commit, $message) = $info;
-
-                $tag = explode("\n", $tag);
-                array_shift($tag); // Removes tag line
-                array_shift($tag); // Removes author line
-
-                // Set timestamp on the tag
-                $date = array_shift($tag);
-                $date = strtotime(trim(substr($date, strpos($date, ':') + 1)));
-                if (is_numeric($date)) {
-                  $parsed['timestamp'] = $date;
-                }
-              }
-
-              $parsed['vc'] = $vc;
-              $parsed['core']  = is_numeric($parsed['core']) ? "{$parsed['core']}.x" : $parsed['core'];
-              $version = "{$parsed['core']}-{$parsed['major']}.{$parsed['patch']}" . (!empty($parsed['extra']) ? "-{$parsed['extra']}" : '');
-              $this->tags[$version] = $parsed;
+            if (!empty($parsed)) {
+              $this->tags[$parsed['version']] = $vc;
             }
           }
           break;
       }
     }
-
-    return isset($this->tags) ? $this->tags : array();
+    return $this->tags;
   }
 
   /**
    * Create a release node for the given tag.
    */
   function create_release($tag_id) {
-    $tags = $this->get_tags();
-    if (isset($this->tags[$tag_id]) && $file = $this->create_package($tag_id)) {
-      $tag = $this->tags[$tag_id];
-
+    $tag = $this->get_tag($tag_id);
+    if ($tag && $file = $this->create_package($tag_id)) {
       $node = new stdClass();
       $node->type = 'fserver_release';
       $node->status = 1;
@@ -312,20 +283,22 @@ class FserverProject {
   }
 
   /**
-  * Create an archive package for the given tag.
-  */
+   * Create an archive package for the given tag.
+   */
   function create_package($tag_id) {
     $this->init_wc();
-    $tags = $this->get_tags();
-    if (isset($tags[$tag_id])) {
-      $vc = $tags[$tag_id]['vc'];
+    $tag = $this->get_tag($tag_id);
+    if ($tag) {
       switch ($this->method) {
         case 'git':
           $base = "{$this->name}-{$tag_id}";
           $file_path = file_directory_path() .'/fserver';
           // Create the directory if it doesn't exist.
           if (file_check_directory($file_path, TRUE)) {
-            drush_op('drush_shell_exec', "git --git-dir={$this->path}/{$this->name}/.git archive --format=tar --prefix={$this->name}/ {$vc} | gzip > {$file_path}/{$base}.tgz");
+            drush_op('drush_shell_exec', "git --git-dir={$this->path}/.git checkout {$vc}");
+            $this->write_package_info($tag);
+            drush_op('drush_shell_exec', "tar -Pcf - --exclude='.git' --transform='s,{$this->path},{$this->name},' {$this->path} | gzip > {$file_path}/{$base}.tgz");
+
             // @TODO
             // We need to properly chown and permission these directories.
             // Is it possible for drush to know the web server user?
@@ -349,6 +322,30 @@ class FserverProject {
       }
     }
     return FALSE;
+  }
+
+  /**
+   * Write packaging information for a release.
+   */
+  function write_package_info($tag) {
+    $fserver_url = url("fserver", array('purl' => array('disabled' => TRUE), 'absolute' => TRUE));
+
+    $packaging = array();
+    $packaging[] = "; Information added by fserver";
+    $packaging[] = "core = \"{$tag['core']}\"";
+    $packaging[] = "datestamp = \"{$tag['timestamp']}\"";
+    $packaging[] = "project = \"{$this->name}\"";
+    $packaging[] = "project status url = \"{$fserver_url}\"";
+    $packaging[] = "version = \"{$tag['version']}\"";
+    $packaging = "\n" . implode("\n", $packaging);
+
+    $files = file_scan_directory($this->path, '.info', array('.git'));
+    foreach ($files as $path => $file) {
+      // @TODO: Parse the info file or not?
+      $info_file = file_get_contents($file->filename);
+      $info_file .= $packaging;
+      file_put_contents($file->filename, $info_file);
+    }
   }
 }
 
