@@ -210,6 +210,7 @@ class FserverProject {
       $this->init_wc();
 
       // Retrieve tag info
+      _drush_shell_exec_output_set(' '); // Clear output cache.
       drush_op('drush_shell_exec', "git --git-dir={$this->path}/.git show {$vc}");
       $info = drush_shell_exec_output();
       if ($info[0] == "tag {$vc}") {
@@ -238,6 +239,7 @@ class FserverProject {
       $this->tags = array();
       switch ($this->method) {
         case 'git':
+          _drush_shell_exec_output_set(' '); // Clear output cache.
           drush_op('drush_shell_exec', "git ls-remote --tags {$this->repository} | awk '{print $2;}'");
           $lines = drush_shell_exec_output();
           while ($line = array_shift($lines)) {
