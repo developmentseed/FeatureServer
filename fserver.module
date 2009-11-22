@@ -49,13 +49,21 @@ function fserver_link($type, $object, $teaser = FALSE) {
  * Implementation of hook_nodeapi().
  */
 function fserver_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
-  if ($op == 'view' && $node->type == 'fserver_project' && menu_get_object()->nid === $node->nid && node_access('update', $node)) {
+  if ($op == 'view' && $node->type == 'fserver_project' && menu_get_object()->nid === $node->nid) {
+    $url = url("fserver", array('purl' => array('disabled' => TRUE), 'absolute' => TRUE));
+    $project = check_plain($node->field_fserver_name[0]['value']);
     $node->content['project_info'] = array(
       '#type' => 'fieldset',
-      '#description' => t('Paste this into your feature\'s info file to enable updates from this site.'),
-      'contents' => array(
-        '#type' => 'markup',
-        '#value' => '<code>project status url = "'. url("fserver", array('purl' => array('disabled' => TRUE), 'absolute' => TRUE)) .'"</code>',
+      'info' => array(
+        '#access' => node_access('update', $node),
+        '#title' => t("For <code>@project.info</code>", array('@project' => $project)),
+        '#type' => 'item',
+        '#value' => "<code>project status url = {$url}</code>",
+      ),
+      'drush_make' => array(
+        '#title' => t("For <code>drush make</code> makefiles"),
+        '#type' => 'item',
+        '#value' => "<code>projects[{$project}][location] = {$url}",
       ),
       '#weight' => -10,
     );
@@ -87,7 +95,7 @@ function fserver_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
     $download_url = url($node->field_fserver_file[0]['filepath'], array('purl' => array('disabled' => TRUE), 'absolute' => TRUE));
     $contents = file_exists($node->field_fserver_file[0]['filepath']) ? file_get_contents($node->field_fserver_file[0]['filepath']) : '';
     $info = array();
-    $info[] = t('Download: !url', array('!url' => l($download_url, $node->field_fserver_file[0]['filepath'])));
+    $info[] = t('Download: !url', array('!url' => l($download_url, $download_url, array('absolute' => TRUE))));
     $info[] = t('md5 hash: !md5', array('!md5' => md5($contents)));
     $info[] = t('Size: !size', array('!size' => format_size($node->field_fserver_file[0]['filesize'])));
     $node->content['fserver_info'] = array(
