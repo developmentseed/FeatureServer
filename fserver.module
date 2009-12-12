@@ -63,7 +63,7 @@ function fserver_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
       'drush_make' => array(
         '#title' => t("For <code>drush make</code> makefiles"),
         '#type' => 'item',
-        '#value' => "<code>projects[{$project}][location] = {$url}",
+        '#value' => "<code>projects[{$project}][location] = {$url}</code>",
       ),
       '#weight' => -10,
     );
