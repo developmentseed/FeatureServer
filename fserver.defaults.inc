@@ -6,6 +6,107 @@
 function _fserver_content_default_fields() {
   $fields = array();
 
+  // Exported field: field_fserver_drushmake
+  $fields[] = array(
+    'field_name' => 'field_fserver_drushmake',
+    'type_name' => 'fserver_distro',
+    'display_settings' => array(
+      'label' => array(
+        'format' => 'above',
+        'exclude' => 0,
+      ),
+      'teaser' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'text',
+    'required' => '1',
+    'multiple' => '0',
+    'module' => 'text',
+    'active' => '1',
+    'text_processing' => '0',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => '',
+    'widget' => array(
+      'rows' => '5',
+      'size' => 60,
+      'default_value' => array(
+        '0' => array(
+          'value' => '',
+          '_error_element' => 'default_value_widget][field_fserver_drushmake][0][value',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Drush Make Script',
+      'weight' => '-3',
+      'description' => '',
+      'type' => 'text_textarea',
+      'module' => 'text',
+    ),
+  );
+
+  // Exported field: field_fserver_name
+  $fields[] = array(
+    'field_name' => 'field_fserver_name',
+    'type_name' => 'fserver_distro',
+    'display_settings' => array(
+      'weight' => '-4',
+      'parent' => '',
+      'label' => array(
+        'format' => 'hidden',
+      ),
+      'teaser' => array(
+        'format' => 'hidden',
+        'exclude' => 0,
+      ),
+      'full' => array(
+        'format' => 'hidden',
+        'exclude' => 0,
+      ),
+      '4' => array(
+        'format' => 'default',
+        'exclude' => 0,
+      ),
+    ),
+    'widget_active' => '1',
+    'type' => 'text',
+    'required' => '1',
+    'multiple' => '0',
+    'module' => 'text',
+    'active' => '1',
+    'text_processing' => '0',
+    'max_length' => '',
+    'allowed_values' => '',
+    'allowed_values_php' => '',
+    'widget' => array(
+      'rows' => 5,
+      'size' => '30',
+      'default_value' => array(
+        '0' => array(
+          'value' => '',
+          '_error_element' => 'default_value_widget][field_fserver_name][0][value',
+        ),
+      ),
+      'default_value_php' => NULL,
+      'label' => 'Machine name',
+      'weight' => '-4',
+      'description' => 'The machine-readable name for your project. This name must contain only lowercase letters, numbers, and underscores. <strong>Example:</strong> cooking_recipes.',
+      'type' => 'text_textfield',
+      'module' => 'text',
+    ),
+  );
+
   // Exported field: field_fserver_method
   $fields[] = array(
     'field_name' => 'field_fserver_method',
@@ -328,9 +429,11 @@ function _fserver_content_default_fields() {
     'module' => 'nodereference',
     'active' => '1',
     'referenceable_types' => array(
+      'fserver_distro' => 'fserver_distro',
       'fserver_project' => 'fserver_project',
-      'image' => 0,
+      'page' => 0,
       'fserver_release' => 0,
+      'story' => 0,
     ),
     'advanced_view' => '--',
     'advanced_view_args' => '',
@@ -599,6 +702,7 @@ function _fserver_content_default_fields() {
   // Translatables
   array(
     t('Core compatibility'),
+    t('Drush Make Script'),
     t('Extra version'),
     t('Machine name'),
     t('Major version'),
@@ -628,15 +732,16 @@ function _fserver_context_default_contexts() {
     'description' => '',
     'node' => array(
       '0' => 'fserver_project',
+      '1' => 'fserver_distro',
     ),
     'block' => array(
       'views_fserver_releases-block_1' => array(
         'module' => 'views',
         'delta' => 'fserver_releases-block_1',
-        'weight' => 20,
+        'weight' => 7,
         'region' => 'content',
         'status' => '0',
-        'label' => 'fserver_releases: Block',
+        'label' => 'fserver_releases: Recommended releases',
         'type' => 'context_ui',
       ),
     ),

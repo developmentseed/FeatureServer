@@ -29,6 +29,10 @@ function fserver_drush_command() {
     'callback' => 'fserver_drush_package',
     'description' => 'Update packaging for a project.',
   );
+  $items['fserver distro'] = array(
+    'callback' => 'fserver_drush_distro',
+    'description' => 'Update packaging for a distribution.',
+  );
   return $items;
 }
 
@@ -41,6 +45,8 @@ function fserver_drush_help($section) {
       return dt("Determine the packaging status of a project.");
     case 'drush:fserver package':
       return dt("Update packaging for a project.");
+    case 'drush:fserver distro':
+      return dt("Package a new Drupal distribution from a distribution node.");
   }
 }
 
@@ -556,4 +562,223 @@ function fserver_posix_groupname() {
     }
   }
   return NULL;
+}
+
+function fserver_drush_distro() {
+  if (!drush_get_option('version')) {
+    drush_die('No version supplied, please use --version to specify a version for your release.');
+  }
+  $distros = _fserver_drush_get_distros();
+
+  // Filter the project list by the argument.
+  $args = func_get_args();
+  $arg = array_shift($args);
+  $version = drush_get_option('version');
+  if (!empty($arg)) {
+    if (isset($distros[$arg])) {
+      $distros = array($arg => $distros[$arg]);
+    }
+    else {
+      drush_die('The distribution '. $arg .' could not be found.');
+    }
+  }
+
+  $rows = array();
+  foreach ($distros as $distro) {
+    $release = $distro->create_release($version);
+    $rows[] = array($distro->node->title, $release->field_fserver_file[0]['filename']);
+  }
+  if (!empty($rows)) {
+    array_unshift($rows, array(dt('Project'), dt('Filename')));
+    drush_print_table($rows, TRUE);
+  }
+  else {
+    drush_print(dt('No distributions to update.'));
+  }
+}
+
+function _fserver_drush_get_distros() {
+  static $distros;
+  if (!isset($distros)) {
+    $projects = array();
+    $result = db_query("SELECT nid, title FROM {node} WHERE type = 'fserver_distro' AND status = 1");
+    while ($row = db_fetch_object($result)) {
+      $node = node_load($row->nid);
+      $distro = new FserverDistro($node, $node->field_fserver_name[0]['value']);
+      $distros[$distro->name] = $distro;
+    }
+  }
+  return $distros;
+}
+
+/**
+ * Project class. Contains helpful methods for detecting tags, packaging, etc.
+ */
+class FserverDistro {
+  var $node, $name;
+
+  /**
+   * Constructor.
+   */
+  function __construct($node, $name, $version = NULL) {
+    $this->node = $node;
+    $this->name = $name;
+    //$this->version = $version;
+  }
+
+  /**
+   * Destructor.
+   */
+  function __destruct() {
+    if (isset($this->path)) {
+      drush_op('drush_shell_exec', "rm -rf {$this->path}");
+    }
+  }
+
+  /**
+   * Initialize a working copy for this project.
+   */
+  function init_wc() {
+    if (!isset($this->raw_version)) {
+      drush_die('Version was not parsed properly. Please supply versions in the drupal-6--1-0-alpha1 format.');
+    }
+    if (!isset($this->path)) {
+      $this->path = file_directory_temp() . '/fserver_'. $this->name .'_'. time();
+      if (file_check_directory($this->path, TRUE)) {
+        if(!file_save_data($this->node->field_fserver_drushmake[0]['value'], $this->path .'/'. $this->name .'-'. $this->raw_version .'.make', FILE_EXISTS_REPLACE)) {
+          return FALSE;
+        }
+        // @TODO
+        // We need to properly chown and permission these directories.
+        // Is it possible for drush to know the web server user?
+        drush_op('chmod', $this->path, 0775);
+        drush_op('chgrp', $this->path, fserver_posix_groupname());
+        drush_op('chmod', "{$this->path}/{$this->name}-{$this->raw_version}.make", 0775);
+        drush_op('chgrp', "{$this->path}/{$this->name}-{$this->raw_version}.make", fserver_posix_groupname());
+      }
+    }
+    return TRUE;
+  }
+
+  /**
+  * Get release nodes for this project.
+  */
+  function get_releases() {
+    if (!isset($this->releases)) {
+      $this->releases = array();
+      $result = db_query("SELECT nid FROM {node} WHERE type = 'fserver_release' AND status = 1");
+      while ($row = db_fetch_object($result)) {
+        $node = node_load($row->nid);
+        if ($node && isset($node->field_fserver_project[0]['nid']) && $node->field_fserver_project[0]['nid'] == $this->node->nid) {
+          $this->releases[fserver_generate_version($node, TRUE)] = $node;
+        }
+      }
+    }
+    return $this->releases;
+  }
+
+  function parse_version($version) {
+    if (isset($version)) {
+      $this->version = array();
+      $parsed = fserver_parse_tag_name($version);
+      if (!empty($parsed)) {
+        $extra = $parsed['extra'] ? $parsed['extra'] : 0;
+        $view = views_get_view('fserver_release_lookup');
+        $view->set_display('default');
+        $args = array();
+        $args[] = $this->node->nid;
+        $args[] = $parsed['core'];
+        $args[] = $extra;
+        $view->set_arguments($args);
+        $preview = $view->preview($form_state['display_id'], $args);
+        $query = db_prefix_tables($view->build_info['query']);
+        _db_query_callback($view->build_info['query_args'], TRUE);
+        $query = preg_replace_callback(DB_QUERY_REGEXP, '_db_query_callback', $query);
+        // Next line required because views passes 0 as "IS NULL" to the query, and we actually want 0, so it's been hacked in manually
+        $query .= " AND (node_data_field_fserver_project.field_fserver_versionmajor_value = %d) AND (node_data_field_fserver_api.field_fserver_versionpatch_value = %d)";
+        $items = db_query($query, $parsed['major'], $parsed['patch']);
+        while ($result = db_fetch_object($items)) {
+          $results[] = $result->nid;
+        }
+        if (!$results[0]) {
+          $this->version = $parsed;
+          $this->raw_version = $parsed['version'];
+        }
+        else {
+          return FALSE;
+        }
+      }
+      else {
+        return FALSE;
+      }
+    }
+    return $this->version;
+  }
+
+  /**
+   * Create a release node for the given tag.
+   */
+  function create_release($version = NULL) {
+    $version = $this->parse_version($version);
+    if ($file = $this->create_package()) {
+    //if ($version) {
+      $node = new stdClass();
+      $node->type = 'fserver_release';
+      $node->status = 1;
+      $node->created = !empty($tag['timestamp']) ? $tag['timestamp'] : time();
+      $node->uid = $this->node->uid;
+      $node->title = "{$this->name} {$tag_id}";
+      $node->body = !empty($tag['message']) ? $tag['message'] : '';
+
+      $node->field_fserver_file = array(0 => (array) $file);
+      $node->field_fserver_project = array(0 => array('nid' => $this->node->nid));
+      $node->field_fserver_api = array(0 => array('value' => $version['core']));
+      $node->field_fserver_versionmajor = array(0 => array('value' => $version['major']));
+      $node->field_fserver_versionpatch = array(0 => array('value' => $version['patch']));
+      $node->field_fserver_versionextra = array(0 => array('value' => $version['extra']));
+
+      // @TODO
+      $node->field_fserver_recommended = array(0 => array('value' => 1));
+      $node->field_fserver_security = array(0 => array('value' => 0));
+      node_save($node);
+    }
+    return $node;
+  }
+
+  /**
+   * Create an archive package for the given tag.
+   */
+  function create_package() {
+    if (!$this->init_wc()) {
+      return FALSE;
+    }
+    $base = "{$this->name}-{$this->raw_version}";
+    $file_path = file_directory_path() .'/fserver';
+    // Create the directory if it doesn't exist.
+    if (file_check_directory($file_path, TRUE)) {
+      drush_op('drush_shell_exec', "drush make --tar {$this->path}/{$base}.make {$file_path}/{$base}");
+      drush_op('drush_shell_exec', "mv {$file_path}/{$base}.tar.gz {$file_path}/{$base}.tgz");
+
+      // @TODO
+      // We need to properly chown and permission these directories.
+      // Is it possible for drush to know the web server user?
+      drush_op('chmod', $file_path, 0775);
+      drush_op('chgrp', $file_path, fserver_posix_groupname());
+      drush_op('chmod', "{$file_path}/{$base}.tgz", 0775);
+      drush_op('chgrp', "{$file_path}/{$base}.tgz", fserver_posix_groupname());
+
+      $file = new stdClass();
+      $file->uid = $this->node->uid;
+      $file->filename = "{$base}.tgz";
+      $file->filepath = "{$file_path}/{$base}.tgz";
+      $file->filemime = file_get_mimetype($file->filename);
+      $file->filesize = filesize($file->filepath);
+      $file->status = FILE_STATUS_PERMANENT;
+      $file->timestamp = time();
+      drupal_write_record('files', $file);
+
+      return $file;
+    }
+    return FALSE;
+  }
 }

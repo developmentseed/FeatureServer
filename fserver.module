@@ -49,6 +49,11 @@ function fserver_link($type, $object, $teaser = FALSE) {
  * Implementation of hook_nodeapi().
  */
 function fserver_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
+  if ($op == 'view' && $node->type == 'fserver_distro' && menu_get_object()->nid === $node->nid) {
+    //$node->content['field_fserver_drushmake'][0]['value'] = '<code>'. $node->field_fserver_drushmake[0]['value'] .'</code>';
+    $node->content['field_fserver_drushmake']['field']['items'][0]['#item']['safe'] = '<fieldset>'. implode('<br />', explode("\r\n", $node->content['field_fserver_drushmake']['field']['items'][0]['#item']['safe'])) .'</fieldset>';
+    
+  }
   if ($op == 'view' && $node->type == 'fserver_project' && menu_get_object()->nid === $node->nid) {
     $url = url("fserver", array('purl' => array('disabled' => TRUE), 'absolute' => TRUE));
     $project = check_plain($node->field_fserver_name[0]['value']);
