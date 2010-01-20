@@ -863,9 +863,11 @@ function _fserver_views_default_views() {
       'default_argument_fixed' => '',
       'default_argument_php' => '',
       'validate_argument_node_type' => array(
+        'fserver_distro' => 'fserver_distro',
         'fserver_project' => 'fserver_project',
         'fserver_release' => 0,
-        'image' => 0,
+        'page' => 0,
+        'story' => 0,
       ),
       'validate_argument_node_access' => 0,
       'validate_argument_nid_type' => 'nid',
