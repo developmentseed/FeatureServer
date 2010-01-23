@@ -756,7 +756,7 @@ class FserverDistro {
     $file_path = file_directory_path() .'/fserver';
     // Create the directory if it doesn't exist.
     if (file_check_directory($file_path, TRUE)) {
-      drush_op('drush_shell_exec', "drush make --tar {$this->path}/{$base}.make {$file_path}/{$base}");
+      drush_backend_invoke('make', array("{$this->path}/{$base}.make", "{$file_path}/{$base}", "--tar"));
       drush_op('drush_shell_exec', "mv {$file_path}/{$base}.tar.gz {$file_path}/{$base}.tgz");
 
       // @TODO
