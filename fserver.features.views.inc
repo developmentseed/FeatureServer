@@ -97,6 +97,7 @@ function _fserver_views_default_views() {
     'type' => array(
       'operator' => 'in',
       'value' => array(
+        'fserver_distro' => 'fserver_distro',
         'fserver_project' => 'fserver_project',
       ),
       'group' => '0',
@@ -117,8 +118,8 @@ function _fserver_views_default_views() {
   $handler->override_option('cache', array(
     'type' => 'none',
   ));
-  $handler->override_option('title', 'Projects');
-  $handler->override_option('empty', 'There are currently no projects available.');
+  $handler->override_option('title', 'Projects and distributions');
+  $handler->override_option('empty', 'There are currently no projects or distributions available.');
   $handler->override_option('items_per_page', 20);
   $handler->override_option('use_pager', '1');
   $handler->override_option('style_plugin', 'grid');
