@@ -379,8 +379,7 @@ class FserverProject_git {
           $vc = $tag['original'];
           drush_op('drush_shell_exec', "git --git-dir={$this->path}/.git checkout {$vc}");
           $this->FserverProject->write_package_info($tag, array('.git'));
-          //Just for MAC: //drush_op('drush_shell_exec', "tar -Pcf - --exclude='.git' --transform='s,{$this->path},{$this->FserverProject->name},' {$this->path} | gzip > {$file_path}/{$base}.tgz");
-          drush_op('drush_shell_exec', "tar -Pcf - --exclude='.git' {$this->path} | gzip > {$file_path}/{$base}.tgz");
+          drush_op('drush_shell_exec', "tar -Pcf - --exclude='.git' --transform='s,{$this->path},{$this->FserverProject->name},' {$this->path} | gzip > {$file_path}/{$base}.tgz");
 
           // @TODO
           // We need to properly chown and permission these directories.
@@ -435,7 +434,7 @@ class FserverProject_svn {
    */
   function init_wc() {
     if (!isset($this->path)) {
-      $this->path = file_directory_temp() . '/fserver_git_'. $this->FserverProject->name .'_'. time();
+      $this->path = file_directory_temp() . '/fserver_svn_'. $this->FserverProject->name .'_'. time();
       //drush_op('drush_shell_exec', "git clone {$this->FserverProject->repository} {$this->path}");
     }
   }
@@ -447,7 +446,7 @@ class FserverProject_svn {
     if (!isset($this->tags)) {
       $this->tags = array();
       _drush_shell_exec_output_set(' '); // Clear output cache.
-      drush_op('drush_shell_exec', "svn ls {$this->FserverProject->repository} | awk '{print $1;}'");
+      drush_op('drush_shell_exec', "svn ls {$this->FserverProject->repository}/tags | awk '{print $1;}'");
       $lines = drush_shell_exec_output();
       while ($line = array_shift($lines)) {
         $vc = array_shift(explode('/', $line));
@@ -469,23 +468,18 @@ class FserverProject_svn {
 
       // Retrieve tag info
       _drush_shell_exec_output_set(' '); // Clear output cache.
-      drush_op('drush_shell_exec', "svn info --non-interactive  {$this->FserverProject->repository}/{$vc}");
+      drush_op('drush_shell_exec', "svn info --non-interactive --xml {$this->FserverProject->repository}/tags/{$vc}");
       $info = drush_shell_exec_output();
-      /*if ($info[0] == "tag {$vc}") {
+      if (!empty($info)) {
         $info = implode("\n", $info);
-        $info = explode("\n\n", $info);
-        list($basic, $commit, $message) = $info;
-
-        $basic = explode("\n", $basic);
-        array_shift($basic); // Removes tag line
-        array_shift($basic); // Removes author line
-
-        // Set timestamp on the tag
-        $date = array_shift($basic);
-        $date = strtotime(trim(substr($date, strpos($date, ':') + 1)));
-        $tag['timestamp'] = is_numeric($date) ? $date : time();
+        // $info is now an xml string:
+        $info_xml = simplexml_load_string($info);
+        foreach ($info_xml->xpath('//commit/date') as $date_element) {
+          $date = strtotime((string)$date_element);
+        }
       }
-      */
+
+
       $tag['timestamp'] = is_numeric($date) ? $date : time();
       return $tag;
     }
@@ -504,14 +498,12 @@ class FserverProject_svn {
         if (file_check_directory($file_path, TRUE)) {
           $vc = $tag['original'];
           if (is_dir($this->path)) {
-            drush_op('drush_shell_exec', "svn switch --non-interactive  {$this->FserverProject->repository}/{$vc} {$this->path}");
+            // I'd quite like to do a switch here, but couldn't get it to work reliably.
+            drush_op('drush_shell_exec', "rm -rf {$this->path}");
           }
-          else {
-            drush_op('drush_shell_exec', "svn checkout --non-interactive  {$this->FserverProject->repository}/{$vc} {$this->path}");
-          }
+          drush_op('drush_shell_exec', "svn checkout --non-interactive  {$this->FserverProject->repository}/tags/{$vc} {$this->path}");
           $this->FserverProject->write_package_info($tag, array('.svn'));
-          //Just for MAC: //drush_op('drush_shell_exec', "tar -Pcf - --exclude='.git' --transform='s,{$this->path},{$this->FserverProject->name},' {$this->path} | gzip > {$file_path}/{$base}.tgz");
-          drush_op('drush_shell_exec', "tar -Pcf - --exclude='.svn' {$this->path} | gzip > {$file_path}/{$base}.tgz");
+          drush_op('drush_shell_exec', "tar -Pcf - --exclude='.svn' --transform='s,{$this->path},{$this->FserverProject->name},' {$this->path} | gzip > {$file_path}/{$base}.tgz");
 
           // @TODO
           // We need to properly chown and permission these directories.
