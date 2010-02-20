@@ -139,6 +139,11 @@ class FserverProject {
   var $node, $name, $method, $repository;
 
   /**
+   * We will store the backend object here.
+   */
+  var $backend;
+
+  /**
    * Constructor.
    */
   function __construct($node, $name, $method, $repository) {
@@ -146,28 +151,22 @@ class FserverProject {
     $this->name = $name;
     $this->method = $method;
     $this->repository = $repository;
-  }
 
-  /**
-   * Destructor.
-   */
-  function __destruct() {
-    if (isset($this->path)) {
-      drush_op('drush_shell_exec', "rm -rf {$this->path}");
+    // We try to create a backend for us to user later:
+    $method_class = 'FserverProject_' . $this->method;
+    if (class_exists($method_class)) {
+      $this->backend = new $method_class($this);
     }
+
+
   }
 
   /**
    * Initialize a working copy for this project.
    */
   function init_wc() {
-    if (!isset($this->path)) {
-      $this->path = file_directory_temp() . '/fserver_'. $this->name .'_'. time();
-      switch ($this->method) {
-        case 'git':
-          drush_op('drush_shell_exec', "git clone {$this->repository} {$this->path}");
-          break;
-      }
+    if (isset($this->backend)) {
+      $this->backend->init_wc();
     }
   }
 
@@ -203,31 +202,8 @@ class FserverProject {
   }
 
   function get_tag($tag_id) {
-    $tags = $this->get_tags();
-    if (isset($tags[$tag_id])) {
-      $vc = $tags[$tag_id];
-      $tag = fserver_parse_tag_name($vc);
-      $this->init_wc();
-
-      // Retrieve tag info
-      _drush_shell_exec_output_set(' '); // Clear output cache.
-      drush_op('drush_shell_exec', "git --git-dir={$this->path}/.git show {$vc}");
-      $info = drush_shell_exec_output();
-      if ($info[0] == "tag {$vc}") {
-        $info = implode("\n", $info);
-        $info = explode("\n\n", $info);
-        list($basic, $commit, $message) = $info;
-
-        $basic = explode("\n", $basic);
-        array_shift($basic); // Removes tag line
-        array_shift($basic); // Removes author line
-
-        // Set timestamp on the tag
-        $date = array_shift($basic);
-        $date = strtotime(trim(substr($date, strpos($date, ':') + 1)));
-        $tag['timestamp'] = is_numeric($date) ? $date : time();
-      }
-      return $tag;
+    if (isset($this->backend)) {
+      return $this->backend->get_tag($tag_id);
     }
   }
 
@@ -235,24 +211,10 @@ class FserverProject {
   * Get tags for this project.
   */
   function get_tags() {
-    if (!isset($this->tags)) {
-      $this->tags = array();
-      switch ($this->method) {
-        case 'git':
-          _drush_shell_exec_output_set(' '); // Clear output cache.
-          drush_op('drush_shell_exec', "git ls-remote --tags {$this->repository} | awk '{print $2;}'");
-          $lines = drush_shell_exec_output();
-          while ($line = array_shift($lines)) {
-            $vc = array_pop(explode('/', $line));
-            $parsed = fserver_parse_tag_name($vc);
-            if (!empty($parsed)) {
-              $this->tags[$parsed['version']] = $vc;
-            }
-          }
-          break;
-      }
+    if (isset($this->backend)) {
+      return $this->backend->get_tags();
     }
-    return $this->tags;
+    return array();
   }
 
   /**
@@ -288,40 +250,8 @@ class FserverProject {
    * Create an archive package for the given tag.
    */
   function create_package($tag_id) {
-    $this->init_wc();
-    $tag = $this->get_tag($tag_id);
-    if ($tag) {
-      switch ($this->method) {
-        case 'git':
-          $base = "{$this->name}-{$tag_id}";
-          $file_path = file_directory_path() .'/fserver';
-          // Create the directory if it doesn't exist.
-          if (file_check_directory($file_path, TRUE)) {
-            drush_op('drush_shell_exec', "git --git-dir={$this->path}/.git checkout {$vc}");
-            $this->write_package_info($tag);
-            drush_op('drush_shell_exec', "tar -Pcf - --exclude='.git' --transform='s,{$this->path},{$this->name},' {$this->path} | gzip > {$file_path}/{$base}.tgz");
-
-            // @TODO
-            // We need to properly chown and permission these directories.
-            // Is it possible for drush to know the web server user?
-            drush_op('chmod', $file_path, 0775);
-            drush_op('chgrp', $file_path, fserver_posix_groupname());
-            drush_op('chmod', "{$file_path}/{$base}.tgz", 0775);
-            drush_op('chgrp', "{$file_path}/{$base}.tgz", fserver_posix_groupname());
-
-            $file = new stdClass();
-            $file->uid = $this->node->uid;
-            $file->filename = "{$base}.tgz";
-            $file->filepath = "{$file_path}/{$base}.tgz";
-            $file->filemime = file_get_mimetype($file->filename);
-            $file->filesize = filesize($file->filepath);
-            $file->status = FILE_STATUS_PERMANENT;
-            $file->timestamp = time();
-            drupal_write_record('files', $file);
-
-            return $file;
-          }
-      }
+    if (isset($this->backend)) {
+      return $this->backend->create_package($tag_id);
     }
     return FALSE;
   }
@@ -329,26 +259,284 @@ class FserverProject {
   /**
    * Write packaging information for a release.
    */
-  function write_package_info($tag) {
-    $fserver_url = url("fserver", array('purl' => array('disabled' => TRUE), 'absolute' => TRUE));
+  function write_package_info($tag, $exclude_mask = array('.', '..', 'CVS')) {
+    if (isset($this->backend)) {
+      $fserver_url = url("fserver", array('purl' => array('disabled' => TRUE), 'absolute' => TRUE));
 
-    $packaging = array();
-    $packaging[] = "; Information added by fserver";
-    $packaging[] = "core = \"{$tag['core']}\"";
-    $packaging[] = "datestamp = \"{$tag['timestamp']}\"";
-    $packaging[] = "project = \"{$this->name}\"";
-    $packaging[] = "project status url = \"{$fserver_url}\"";
-    $packaging[] = "version = \"{$tag['version']}\"";
-    $packaging = "\n" . implode("\n", $packaging);
+      $packaging = array();
+      $packaging[] = "; Information added by fserver";
+      $packaging[] = "core = \"{$tag['core']}\"";
+      $packaging[] = "datestamp = \"{$tag['timestamp']}\"";
+      $packaging[] = "project = \"{$this->name}\"";
+      $packaging[] = "project status url = \"{$fserver_url}\"";
+      $packaging[] = "version = \"{$tag['version']}\"";
+      $packaging = "\n" . implode("\n", $packaging);
 
-    $files = file_scan_directory($this->path, '.info', array('.git'));
-    foreach ($files as $path => $file) {
-      // @TODO: Parse the info file or not?
-      $info_file = file_get_contents($file->filename);
-      $info_file .= $packaging;
-      file_put_contents($file->filename, $info_file);
+      $files = file_scan_directory($this->backend->path, '.info', $exclude_mask);
+      foreach ($files as $path => $file) {
+        // @TODO: Parse the info file or not?
+        $info_file = file_get_contents($file->filename);
+        $info_file .= $packaging;
+        file_put_contents($file->filename, $info_file);
+      }
     }
   }
+}
+
+class FserverProject_git {
+
+  /**
+   * We store the parent FserverProject object here.
+   */
+  var $FserverProject;
+
+  /**
+   * Constructor.
+   */
+  function __construct(&$FserverProject) {
+    $this->FserverProject = $FserverProject;
+  }
+
+  /**
+   * Destructor.
+   */
+  function __destruct() {
+    if (isset($this->path)) {
+      drush_op('drush_shell_exec', "rm -rf {$this->path}");
+    }
+  }
+
+  /**
+   * Initialize a working copy for this project.
+   */
+  function init_wc() {
+    if (!isset($this->path)) {
+      $this->path = file_directory_temp() . '/fserver_git_'. $this->FserverProject->name .'_'. time();
+      drush_op('drush_shell_exec', "git clone {$this->FserverProject->repository} {$this->path}");
+    }
+  }
+
+  /**
+  * Get tags for this project.
+  */
+  function get_tags() {
+    if (!isset($this->tags)) {
+      $this->tags = array();
+      _drush_shell_exec_output_set(' '); // Clear output cache.
+      drush_op('drush_shell_exec', "git ls-remote --tags {$this->FserverProject->repository} | awk '{print $2;}'");
+      $lines = drush_shell_exec_output();
+      while ($line = array_shift($lines)) {
+        $vc = array_pop(explode('/', $line));
+        $parsed = fserver_parse_tag_name($vc);
+        if (!empty($parsed)) {
+          $this->tags[$parsed['version']] = $vc;
+        }
+      }
+    }
+    return $this->tags;
+  }
+
+  function get_tag($tag_id) {
+    $tags = $this->get_tags();
+    if (isset($tags[$tag_id])) {
+      $vc = $tags[$tag_id];
+      $tag = fserver_parse_tag_name($vc);
+      $this->init_wc();
+
+      // Retrieve tag info
+      _drush_shell_exec_output_set(' '); // Clear output cache.
+      drush_op('drush_shell_exec', "git --git-dir={$this->path}/.git show {$vc}");
+      $info = drush_shell_exec_output();
+      if ($info[0] == "tag {$vc}") {
+        $info = implode("\n", $info);
+        $info = explode("\n\n", $info);
+        list($basic, $commit, $message) = $info;
+
+        $basic = explode("\n", $basic);
+        array_shift($basic); // Removes tag line
+        array_shift($basic); // Removes author line
+
+        // Set timestamp on the tag
+        $date = array_shift($basic);
+        $date = strtotime(trim(substr($date, strpos($date, ':') + 1)));
+        $tag['timestamp'] = is_numeric($date) ? $date : time();
+      }
+      return $tag;
+    }
+  }
+
+  /**
+   * Create an archive package for the given tag.
+   */
+  function create_package($tag_id) {
+    $this->init_wc();
+    $tag = $this->get_tag($tag_id);
+    if ($tag) {
+        $base = "{$this->FserverProject->name}-{$tag_id}";
+        $file_path = file_directory_path() .'/fserver';
+        // Create the directory if it doesn't exist.
+        if (file_check_directory($file_path, TRUE)) {
+          $vc = $tag['original'];
+          drush_op('drush_shell_exec', "git --git-dir={$this->path}/.git checkout {$vc}");
+          $this->FserverProject->write_package_info($tag, array('.git'));
+          //Just for MAC: //drush_op('drush_shell_exec', "tar -Pcf - --exclude='.git' --transform='s,{$this->path},{$this->FserverProject->name},' {$this->path} | gzip > {$file_path}/{$base}.tgz");
+          drush_op('drush_shell_exec', "tar -Pcf - --exclude='.git' {$this->path} | gzip > {$file_path}/{$base}.tgz");
+
+          // @TODO
+          // We need to properly chown and permission these directories.
+          // Is it possible for drush to know the web server user?
+          drush_op('chmod', $file_path, 0775);
+          drush_op('chgrp', $file_path, fserver_posix_groupname());
+          drush_op('chmod', "{$file_path}/{$base}.tgz", 0775);
+          drush_op('chgrp', "{$file_path}/{$base}.tgz", fserver_posix_groupname());
+
+          $file = new stdClass();
+          $file->uid = $this->node->uid;
+          $file->filename = "{$base}.tgz";
+          $file->filepath = "{$file_path}/{$base}.tgz";
+          $file->filemime = file_get_mimetype($file->filename);
+          $file->filesize = filesize($file->filepath);
+          $file->status = FILE_STATUS_PERMANENT;
+          $file->timestamp = time();
+          drupal_write_record('files', $file);
+
+          return $file;
+        }
+    }
+    return FALSE;
+  }
+
+}
+
+class FserverProject_svn {
+  /**
+   * We store the parent FserverProject object here.
+   */
+  var $FserverProject;
+
+  /**
+   * Constructor.
+   */
+  function __construct(&$FserverProject) {
+    $this->FserverProject = $FserverProject;
+  }
+
+  /**
+   * Destructor.
+   */
+  function __destruct() {
+    if (isset($this->path)) {
+      drush_op('drush_shell_exec', "rm -rf {$this->path}");
+    }
+  }
+
+  /**
+   * Initialize a working copy for this project.
+   */
+  function init_wc() {
+    if (!isset($this->path)) {
+      $this->path = file_directory_temp() . '/fserver_git_'. $this->FserverProject->name .'_'. time();
+      //drush_op('drush_shell_exec', "git clone {$this->FserverProject->repository} {$this->path}");
+    }
+  }
+
+  /**
+  * Get tags for this project.
+  */
+  function get_tags() {
+    if (!isset($this->tags)) {
+      $this->tags = array();
+      _drush_shell_exec_output_set(' '); // Clear output cache.
+      drush_op('drush_shell_exec', "svn ls {$this->FserverProject->repository} | awk '{print $1;}'");
+      $lines = drush_shell_exec_output();
+      while ($line = array_shift($lines)) {
+        $vc = array_shift(explode('/', $line));
+        $parsed = fserver_parse_tag_name($vc);
+        if (!empty($parsed)) {
+          $this->tags[$parsed['version']] = $vc;
+        }
+      }
+    }
+    return $this->tags;
+  }
+
+  function get_tag($tag_id) {
+    $tags = $this->get_tags();
+    if (isset($tags[$tag_id])) {
+      $vc = $tags[$tag_id];
+      $tag = fserver_parse_tag_name($vc);
+      $this->init_wc();
+
+      // Retrieve tag info
+      _drush_shell_exec_output_set(' '); // Clear output cache.
+      drush_op('drush_shell_exec', "svn info --non-interactive  {$this->FserverProject->repository}/{$vc}");
+      $info = drush_shell_exec_output();
+      /*if ($info[0] == "tag {$vc}") {
+        $info = implode("\n", $info);
+        $info = explode("\n\n", $info);
+        list($basic, $commit, $message) = $info;
+
+        $basic = explode("\n", $basic);
+        array_shift($basic); // Removes tag line
+        array_shift($basic); // Removes author line
+
+        // Set timestamp on the tag
+        $date = array_shift($basic);
+        $date = strtotime(trim(substr($date, strpos($date, ':') + 1)));
+        $tag['timestamp'] = is_numeric($date) ? $date : time();
+      }
+      */
+      $tag['timestamp'] = is_numeric($date) ? $date : time();
+      return $tag;
+    }
+  }
+
+  /**
+   * Create an archive package for the given tag.
+   */
+  function create_package($tag_id) {
+    $this->init_wc();
+    $tag = $this->get_tag($tag_id);
+    if ($tag) {
+        $base = "{$this->FserverProject->name}-{$tag_id}";
+        $file_path = file_directory_path() .'/fserver';
+        // Create the directory if it doesn't exist.
+        if (file_check_directory($file_path, TRUE)) {
+          $vc = $tag['original'];
+          if (is_dir($this->path)) {
+            drush_op('drush_shell_exec', "svn switch --non-interactive  {$this->FserverProject->repository}/{$vc} {$this->path}");
+          }
+          else {
+            drush_op('drush_shell_exec', "svn checkout --non-interactive  {$this->FserverProject->repository}/{$vc} {$this->path}");
+          }
+          $this->FserverProject->write_package_info($tag, array('.svn'));
+          //Just for MAC: //drush_op('drush_shell_exec', "tar -Pcf - --exclude='.git' --transform='s,{$this->path},{$this->FserverProject->name},' {$this->path} | gzip > {$file_path}/{$base}.tgz");
+          drush_op('drush_shell_exec', "tar -Pcf - --exclude='.svn' {$this->path} | gzip > {$file_path}/{$base}.tgz");
+
+          // @TODO
+          // We need to properly chown and permission these directories.
+          // Is it possible for drush to know the web server user?
+          drush_op('chmod', $file_path, 0775);
+          drush_op('chgrp', $file_path, fserver_posix_groupname());
+          drush_op('chmod', "{$file_path}/{$base}.tgz", 0775);
+          drush_op('chgrp', "{$file_path}/{$base}.tgz", fserver_posix_groupname());
+
+          $file = new stdClass();
+          $file->uid = $this->node->uid;
+          $file->filename = "{$base}.tgz";
+          $file->filepath = "{$file_path}/{$base}.tgz";
+          $file->filemime = file_get_mimetype($file->filename);
+          $file->filesize = filesize($file->filepath);
+          $file->status = FILE_STATUS_PERMANENT;
+          $file->timestamp = time();
+          drupal_write_record('files', $file);
+
+          return $file;
+        }
+    }
+    return FALSE;
+  }
+
 }
 
 /**
