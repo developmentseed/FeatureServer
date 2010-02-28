@@ -110,8 +110,12 @@ class fserver_plugin_style_updatexml extends views_plugin_style {
         $alias = $fields[$field]->field_alias;
         if (isset($row->{$alias})) {
           switch ($element) {
+            // Don't mess with certain fields, period.
             case 'recommended':
             case 'security':
+            case 'version_major':
+            case 'version_patch':
+            case 'version_extra':
               $releases[$num][$element] = check_plain($row->{$alias});
               break;
             default:
