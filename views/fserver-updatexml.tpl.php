@@ -23,15 +23,15 @@
 
   <releases>
     <?php foreach ($releases as $release): ?>
+
     <release>
+
       <name><?php print $release['name'] ?></name>
       <version><?php print $release['version'] ?></version>
 
       <version_major><?php print $release['version_major'] ?></version_major>
       <version_patch><?php print $release['version_patch'] ?></version_patch>
-      <?php if (!empty($release['version_extra'])): ?>
-      <version_extra><?php print $release['version_extra'] ?></version_extra>
-      <?php endif; ?>
+      <?php if (!empty($release['version_extra'])): ?><version_extra><?php print $release['version_extra'] ?></version_extra><?php endif; ?>
 
       <status>published</status>
 
@@ -40,17 +40,16 @@
       <date><?php print $release['date'] ?></date>
       <mdhash><?php print $release['mdhash'] ?></mdhash>
       <filesize><?php print $release['filesize'] ?></filesize>
-
-      <?php if ($release['security']): ?>
-      <terms>
+      <?php if ($release['security']): ?><terms>
         <term>
           <name>Release type</name>
           <value>Security update</value>
         </term>
-      </terms>
-      <?php endif; ?>
+      </terms><?php endif; ?>
+
     </release>
     <?php endforeach; ?>
+
   </releases>
 </project>
 <?php else: ?>
