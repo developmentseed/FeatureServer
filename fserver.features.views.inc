@@ -1167,23 +1167,11 @@ function _fserver_views_default_views() {
     ),
   ));
   $handler->override_option('sorts', array(
-    'field_fserver_versionmajor_value' => array(
+    'release_tag' => array(
       'order' => 'DESC',
-      'delta' => -1,
-      'id' => 'field_fserver_versionmajor_value',
-      'table' => 'node_data_field_fserver_versionmajor',
-      'field' => 'field_fserver_versionmajor_value',
-      'override' => array(
-        'button' => 'Override',
-      ),
-      'relationship' => 'none',
-    ),
-    'field_fserver_versionpatch_value' => array(
-      'order' => 'DESC',
-      'delta' => -1,
-      'id' => 'field_fserver_versionpatch_value',
-      'table' => 'node_data_field_fserver_versionpatch',
-      'field' => 'field_fserver_versionpatch_value',
+      'id' => 'release_tag',
+      'table' => 'views',
+      'field' => 'release_tag',
       'relationship' => 'none',
     ),
     'status' => array(
@@ -1311,23 +1299,6 @@ function _fserver_views_default_views() {
       'table' => 'node',
       'field' => 'type',
       'relationship' => 'none',
-    ),
-    'field_fserver_recommended_value_many_to_one' => array(
-      'operator' => 'or',
-      'value' => array(
-        '1' => '1',
-      ),
-      'group' => '0',
-      'exposed' => FALSE,
-      'expose' => array(
-        'operator' => FALSE,
-        'label' => '',
-      ),
-      'id' => 'field_fserver_recommended_value_many_to_one',
-      'table' => 'node_data_field_fserver_recommended',
-      'field' => 'field_fserver_recommended_value_many_to_one',
-      'relationship' => 'none',
-      'reduce_duplicates' => 0,
     ),
   ));
   $handler->override_option('access', array(
