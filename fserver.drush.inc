@@ -157,8 +157,6 @@ class FserverProject {
     if (class_exists($method_class)) {
       $this->backend = new $method_class($this);
     }
-
-
   }
 
   /**
@@ -528,7 +526,6 @@ class FserverProject_svn {
     }
     return FALSE;
   }
-
 }
 
 /**
