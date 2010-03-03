@@ -1,4 +1,5 @@
 core = "6.x"
+dependencies[] = "number"
 dependencies[] = "context"
 dependencies[] = "features"
 dependencies[] = "filefield"
