@@ -29,7 +29,7 @@ function fserver_drush_command() {
     'callback' => 'fserver_drush_package',
     'description' => 'Update packaging for a project.',
   );
-  $items['fserver distro'] = array(
+  $items['fserver-distro'] = array(
     'callback' => 'fserver_drush_distro',
     'description' => 'Update packaging for a distribution.',
   );
@@ -41,11 +41,11 @@ function fserver_drush_command() {
  */
 function fserver_drush_help($section) {
   switch ($section) {
-    case 'drush:fserver status':
+    case 'drush:fserver-status':
       return dt("Determine the packaging status of a project.");
-    case 'drush:fserver package':
+    case 'drush:fserver-package':
       return dt("Update packaging for a project.");
-    case 'drush:fserver distro':
+    case 'drush:fserver-distro':
       return dt("Package a new Drupal distribution from a distribution node.");
   }
 }
