@@ -3,31 +3,6 @@
 include_once('fserver.features.inc');
 
 /**
- * Implementation of hook_strongarm().
- */
-function fserver_strongarm() {
-  return array(
-    'content_extra_weights_fserver_project' => array (
-      'title' => '-5',
-      'body_field' => '5',
-      'revision_information' => '6',
-      'comment_settings' => '7',
-      'menu' => '8',
-    ),
-  );
-}
-
-/**
- * Implementation of hook_views_api().
- */
-function fserver_views_api() {
-  return array(
-    'api' => 2,
-    'path' => drupal_get_path('module', 'fserver') .'/views',
-  );
-}
-
-/**
  * Implementation of hook_link().
  */
 function fserver_link($type, $object, $teaser = FALSE) {

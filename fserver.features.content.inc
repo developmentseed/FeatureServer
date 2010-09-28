@@ -1,13 +1,13 @@
 <?php
 
 /**
- * Helper to implementation of hook_content_default_fields().
+ * Implementation of hook_content_default_fields().
  */
-function _fserver_content_default_fields() {
+function fserver_content_default_fields() {
   $fields = array();
 
   // Exported field: field_fserver_drushmake
-  $fields[] = array(
+  $fields['fserver_distro-field_fserver_drushmake'] = array(
     'field_name' => 'field_fserver_drushmake',
     'type_name' => 'fserver_distro',
     'display_settings' => array(
@@ -57,7 +57,7 @@ function _fserver_content_default_fields() {
   );
 
   // Exported field: field_fserver_name
-  $fields[] = array(
+  $fields['fserver_distro-field_fserver_name'] = array(
     'field_name' => 'field_fserver_name',
     'type_name' => 'fserver_distro',
     'display_settings' => array(
@@ -108,7 +108,7 @@ function _fserver_content_default_fields() {
   );
 
   // Exported field: field_fserver_method
-  $fields[] = array(
+  $fields['fserver_project-field_fserver_method'] = array(
     'field_name' => 'field_fserver_method',
     'type_name' => 'fserver_project',
     'display_settings' => array(
@@ -156,7 +156,7 @@ function _fserver_content_default_fields() {
   );
 
   // Exported field: field_fserver_name
-  $fields[] = array(
+  $fields['fserver_project-field_fserver_name'] = array(
     'field_name' => 'field_fserver_name',
     'type_name' => 'fserver_project',
     'display_settings' => array(
@@ -207,7 +207,7 @@ function _fserver_content_default_fields() {
   );
 
   // Exported field: field_fserver_repository
-  $fields[] = array(
+  $fields['fserver_project-field_fserver_repository'] = array(
     'field_name' => 'field_fserver_repository',
     'type_name' => 'fserver_project',
     'display_settings' => array(
@@ -258,7 +258,7 @@ function _fserver_content_default_fields() {
   );
 
   // Exported field: field_fserver_type
-  $fields[] = array(
+  $fields['fserver_project-field_fserver_type'] = array(
     'field_name' => 'field_fserver_type',
     'type_name' => 'fserver_project',
     'display_settings' => array(
@@ -306,7 +306,7 @@ function _fserver_content_default_fields() {
   );
 
   // Exported field: field_fserver_api
-  $fields[] = array(
+  $fields['fserver_release-field_fserver_api'] = array(
     'field_name' => 'field_fserver_api',
     'type_name' => 'fserver_release',
     'display_settings' => array(
@@ -354,7 +354,7 @@ function _fserver_content_default_fields() {
   );
 
   // Exported field: field_fserver_file
-  $fields[] = array(
+  $fields['fserver_release-field_fserver_file'] = array(
     'field_name' => 'field_fserver_file',
     'type_name' => 'fserver_release',
     'display_settings' => array(
@@ -400,7 +400,7 @@ function _fserver_content_default_fields() {
   );
 
   // Exported field: field_fserver_project
-  $fields[] = array(
+  $fields['fserver_release-field_fserver_project'] = array(
     'field_name' => 'field_fserver_project',
     'type_name' => 'fserver_release',
     'display_settings' => array(
@@ -455,7 +455,7 @@ function _fserver_content_default_fields() {
   );
 
   // Exported field: field_fserver_recommended
-  $fields[] = array(
+  $fields['fserver_release-field_fserver_recommended'] = array(
     'field_name' => 'field_fserver_recommended',
     'type_name' => 'fserver_release',
     'display_settings' => array(
@@ -503,7 +503,7 @@ function _fserver_content_default_fields() {
   );
 
   // Exported field: field_fserver_security
-  $fields[] = array(
+  $fields['fserver_release-field_fserver_security'] = array(
     'field_name' => 'field_fserver_security',
     'type_name' => 'fserver_release',
     'display_settings' => array(
@@ -551,7 +551,7 @@ function _fserver_content_default_fields() {
   );
 
   // Exported field: field_fserver_versionextra
-  $fields[] = array(
+  $fields['fserver_release-field_fserver_versionextra'] = array(
     'field_name' => 'field_fserver_versionextra',
     'type_name' => 'fserver_release',
     'display_settings' => array(
@@ -602,7 +602,7 @@ function _fserver_content_default_fields() {
   );
 
   // Exported field: field_fserver_versionmajor
-  $fields[] = array(
+  $fields['fserver_release-field_fserver_versionmajor'] = array(
     'field_name' => 'field_fserver_versionmajor',
     'type_name' => 'fserver_release',
     'display_settings' => array(
@@ -630,9 +630,10 @@ function _fserver_content_default_fields() {
     'multiple' => '0',
     'module' => 'number',
     'active' => '1',
+    'prefix' => '',
+    'suffix' => '',
     'min' => '0',
     'max' => '50',
-    'max_length' => '',
     'allowed_values' => '',
     'allowed_values_php' => 'return fserver_cck_options(\'major\');',
     'widget' => array(
@@ -651,7 +652,7 @@ function _fserver_content_default_fields() {
   );
 
   // Exported field: field_fserver_versionpatch
-  $fields[] = array(
+  $fields['fserver_release-field_fserver_versionpatch'] = array(
     'field_name' => 'field_fserver_versionpatch',
     'type_name' => 'fserver_release',
     'display_settings' => array(
@@ -679,9 +680,10 @@ function _fserver_content_default_fields() {
     'multiple' => '0',
     'module' => 'number',
     'active' => '1',
+    'prefix' => '',
+    'suffix' => '',
     'min' => '0',
     'max' => '50',
-    'max_length' => '',
     'allowed_values' => '',
     'allowed_values_php' => 'return fserver_cck_options(\'patch\');',
     'widget' => array(
@@ -700,71 +702,20 @@ function _fserver_content_default_fields() {
   );
 
   // Translatables
-  array(
-    t('Core compatibility'),
-    t('Drush Make Script'),
-    t('Extra version'),
-    t('Machine name'),
-    t('Major version'),
-    t('Package'),
-    t('Packaging method'),
-    t('Patch version'),
-    t('Project'),
-    t('Recommended'),
-    t('Repository URL'),
-    t('Security release'),
-    t('Type'),
-  );
+  // Included for use with string extractors like potx.
+  t('Core compatibility');
+  t('Drush Make Script');
+  t('Extra version');
+  t('Machine name');
+  t('Major version');
+  t('Package');
+  t('Packaging method');
+  t('Patch version');
+  t('Project');
+  t('Recommended');
+  t('Repository URL');
+  t('Security release');
+  t('Type');
 
   return $fields;
-}
-
-/**
- * Helper to implementation of hook_context_default_contexts().
- */
-function _fserver_context_default_contexts() {
-  $items = array();
-
-  $items[] = array(
-    'namespace' => 'fserver',
-    'attribute' => 'section',
-    'value' => 'project',
-    'description' => '',
-    'node' => array(
-      '0' => 'fserver_project',
-      '1' => 'fserver_distro',
-    ),
-    'block' => array(
-      'views_fserver_releases-block_1' => array(
-        'module' => 'views',
-        'delta' => 'fserver_releases-block_1',
-        'weight' => 7,
-        'region' => 'content',
-        'status' => '0',
-        'label' => 'fserver_releases: Recommended releases',
-        'type' => 'context_ui',
-      ),
-    ),
-  );
-  return $items;
-}
-
-/**
- * Helper to implementation of hook_menu_default_items().
- */
-function _fserver_menu_default_items() {
-  $items = array();
-
-  $items[] = array(
-    'title' => 'Projects',
-    'path' => 'fserver',
-    'weight' => '0',
-  );
-  // Translatables
-  array(
-    t('Projects'),
-  );
-
-
-  return $items;
 }

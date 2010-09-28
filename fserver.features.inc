@@ -1,46 +1,65 @@
 <?php
 
 /**
- * Implementation of hook_content_default_fields().
+ * Implementation of hook_ctools_plugin_api().
  */
-function fserver_content_default_fields() {
-  module_load_include('inc', 'fserver', 'fserver.defaults');
-  $args = func_get_args();
-  return call_user_func_array('_fserver_content_default_fields', $args);
-}
-
-/**
- * Implementation of hook_context_default_contexts().
- */
-function fserver_context_default_contexts() {
-  module_load_include('inc', 'fserver', 'fserver.defaults');
-  $args = func_get_args();
-  return call_user_func_array('_fserver_context_default_contexts', $args);
-}
-
-/**
- * Implementation of hook_menu_default_items().
- */
-function fserver_menu_default_items() {
-  module_load_include('inc', 'fserver', 'fserver.defaults');
-  $args = func_get_args();
-  return call_user_func_array('_fserver_menu_default_items', $args);
+function fserver_ctools_plugin_api() {
+  list($module, $api) = func_get_args();
+  if ($module == "context" && $api == "context") {
+    return array("version" => 3);
+  }
+  elseif ($module == "strongarm" && $api == "strongarm") {
+    return array("version" => 1);
+  }
 }
 
 /**
  * Implementation of hook_node_info().
  */
 function fserver_node_info() {
-  module_load_include('inc', 'fserver', 'fserver.features.node');
-  $args = func_get_args();
-  return call_user_func_array('_fserver_node_info', $args);
+  $items = array(
+    'fserver_distro' => array(
+      'name' => t('Distribution'),
+      'module' => 'features',
+      'description' => t('A feature distribution page. Provides the drush make commands and releases for download.'),
+      'has_title' => '1',
+      'title_label' => t('Distribution'),
+      'has_body' => '1',
+      'body_label' => t('Body'),
+      'min_word_count' => '0',
+      'help' => '',
+    ),
+    'fserver_project' => array(
+      'name' => t('Project'),
+      'module' => 'features',
+      'description' => t('A feature project page. Provides a summary of project information and releases for download.'),
+      'has_title' => '1',
+      'title_label' => t('Project'),
+      'has_body' => '1',
+      'body_label' => t('Description'),
+      'min_word_count' => '0',
+      'help' => '',
+    ),
+    'fserver_release' => array(
+      'name' => t('Release'),
+      'module' => 'features',
+      'description' => t('A single release package for a feature.'),
+      'has_title' => '1',
+      'title_label' => t('Release'),
+      'has_body' => '1',
+      'body_label' => t('Notes'),
+      'min_word_count' => '0',
+      'help' => '',
+    ),
+  );
+  return $items;
 }
 
 /**
- * Implementation of hook_views_default_views().
+ * Implementation of hook_views_api().
  */
-function fserver_views_default_views() {
-  module_load_include('inc', 'fserver', 'fserver.features.views');
-  $args = func_get_args();
-  return call_user_func_array('_fserver_views_default_views', $args);
+function fserver_views_api() {
+  return array(
+    'api' => '2',
+  );
 }
