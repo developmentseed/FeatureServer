@@ -5,7 +5,7 @@ class fserver_plugin_style_updatexml extends views_plugin_style {
    * List of project XML elements.
    */
   private function project_elements() {
-    return array('title', 'short_name', 'api_version', 'link', 'type');
+    return array('title', 'short_name', 'api_version', 'link', 'type', 'redirect');
   }
 
   /**
@@ -94,6 +94,13 @@ class fserver_plugin_style_updatexml extends views_plugin_style {
           continue;
         }
       }
+    }
+
+    // If this is a legacy project and has a redirect URL use it immediately.
+    if (!empty($project['redirect'])) {
+      $redirect = $project['redirect'];
+      $redirect .= !empty($vars['view']->args) ? '/'. implode('/', $vars['view']->args) : '';
+      drupal_goto($redirect);
     }
 
     // Additional formatting for some values

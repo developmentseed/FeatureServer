@@ -1384,6 +1384,40 @@ function fserver_views_default_views() {
       'field' => 'field_fserver_type_value',
       'relationship' => 'field_fserver_project_nid',
     ),
+    'field_fserver_redirect_value' => array(
+      'label' => 'Type',
+      'alter' => array(
+        'alter_text' => 0,
+        'text' => '',
+        'make_link' => 0,
+        'path' => '',
+        'link_class' => '',
+        'alt' => '',
+        'prefix' => '',
+        'suffix' => '',
+        'help' => '',
+        'trim' => 0,
+        'max_length' => '',
+        'word_boundary' => 1,
+        'ellipsis' => 1,
+        'strip_tags' => 0,
+        'html' => 0,
+      ),
+      'link_to_node' => 0,
+      'label_type' => 'widget',
+      'format' => 'plain',
+      'multiple' => array(
+        'group' => TRUE,
+        'multiple_number' => '',
+        'multiple_from' => '',
+        'multiple_reversed' => FALSE,
+      ),
+      'exclude' => 0,
+      'id' => 'field_fserver_redirect_value',
+      'table' => 'node_data_field_fserver_redirect',
+      'field' => 'field_fserver_redirect_value',
+      'relationship' => 'field_fserver_project_nid',
+    ),
   ));
   $handler->override_option('sorts', array(
     'release_tag' => array(
@@ -1541,6 +1575,7 @@ function fserver_views_default_views() {
       'api_version' => 'field_fserver_api_value',
       'link' => 'nid',
       'type' => 'field_fserver_type_value',
+      'redirect' => 'field_fserver_redirect_value',
     ),
     'release' => array(
       'version_major' => 'field_fserver_versionmajor_value',
