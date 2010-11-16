@@ -346,7 +346,7 @@ class FserverProject_git {
 
       // Retrieve tag info
       _drush_shell_exec_output_set(' '); // Clear output cache.
-      drush_op('drush_shell_exec', "git --git-dir={$this->path}/.git show {$vc}");
+      drush_op('drush_shell_exec', "git --git-dir={$this->path}/.git --work-tree={$this->path} show {$vc}");
       $info = drush_shell_exec_output();
       if ($info[0] == "tag {$vc}") {
         $info = implode("\n", $info);
@@ -378,7 +378,7 @@ class FserverProject_git {
         // Create the directory if it doesn't exist.
         if (file_check_directory($file_path, TRUE)) {
           $vc = $tag['original'];
-          drush_op('drush_shell_exec', "git --git-dir={$this->path}/.git checkout {$vc}");
+          drush_op('drush_shell_exec', "git --git-dir={$this->path}/.git --work-tree={$this->path} checkout {$vc}");
           $this->FserverProject->write_package_info($tag, array('.git'));
           drush_op('drush_shell_exec', "tar -Pcf - --exclude='.git' --transform='s,{$this->path},{$this->FserverProject->name},' {$this->path} | gzip > {$file_path}/{$base}.tgz");
 
