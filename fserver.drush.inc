@@ -346,7 +346,7 @@ class FserverProject_git {
 
       // Retrieve tag info
      _drush_shell_exec_output_set(' '); // Clear output cache.
-      drush_op('drush_shell_exec', "git --git-dir={$this->path}/.git log --work-tree={$this->path} -1 --pretty=format:%ct {$vc}");
+      drush_op('drush_shell_exec', "git --git-dir={$this->path}/.git log -1 --pretty=format:%%ct {$vc}");
       $info = drush_shell_exec_output();
       $tag['timestamp'] = $info[0];
       drush_op('drush_shell_exec', "git --git-dir={$this->path}/.git tag -l {$vc} -n 1000");
