@@ -345,23 +345,15 @@ class FserverProject_git {
       $this->init_wc();
 
       // Retrieve tag info
-      _drush_shell_exec_output_set(' '); // Clear output cache.
-      drush_op('drush_shell_exec', "git --git-dir={$this->path}/.git --work-tree={$this->path} show {$vc}");
+     _drush_shell_exec_output_set(' '); // Clear output cache.
+      drush_op('drush_shell_exec', "git --git-dir={$this->path}/.git log --work-tree={$this->path} -1 --pretty=format:%ct {$vc}");
       $info = drush_shell_exec_output();
-      if ($info[0] == "tag {$vc}") {
-        $info = implode("\n", $info);
-        $info = explode("\n\n", $info);
-        list($basic, $commit, $message) = $info;
-
-        $basic = explode("\n", $basic);
-        array_shift($basic); // Removes tag line
-        array_shift($basic); // Removes author line
-
-        // Set timestamp on the tag
-        $date = array_shift($basic);
-        $date = strtotime(trim(substr($date, strpos($date, ':') + 1)));
-        $tag['timestamp'] = is_numeric($date) ? $date : time();
-      }
+      $tag['timestamp'] = $info[0];
+      drush_op('drush_shell_exec', "git --git-dir={$this->path}/.git tag -l {$vc} -n 1000");
+      $info = drush_shell_exec_output();
+      // Remove the tag from the first line of the message:
+      $info[0] = str_replace($vc, '', $info[0]);
+      $tag['message'] = implode("\n", $info);
       return $tag;
     }
   }
