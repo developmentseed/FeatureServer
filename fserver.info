@@ -5,6 +5,7 @@ dependencies[] = "filefield"
 dependencies[] = "menu"
 dependencies[] = "node"
 dependencies[] = "nodereference"
+dependencies[] = "nodereference_url"x
 dependencies[] = "number"
 dependencies[] = "strongarm"
 dependencies[] = "views"
