@@ -13,7 +13,7 @@ function fserver_link($type, $object, $teaser = FALSE) {
     if ($item && $item['access']) {
       $links['fserver-add-release'] = array(
         'title' => t('Add new @release', array('@release' => strtolower($item['title']))),
-        'href' => 'node/add/fserver-release'.$object->nid,
+        'href' => 'node/add/fserver-release/'.$object->nid,
       );
     }
   }
