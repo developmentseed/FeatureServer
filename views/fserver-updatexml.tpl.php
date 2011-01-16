@@ -17,8 +17,8 @@
     </term>
   </terms>
   <sourcecode>
-    <type><?php print $project['scmtype']; ?></type>
-    <url><?php print $project['scmurl']; ?></url>
+    <type><?php print $project['sourcecode_type']; ?></type>
+    <uri><?php print $project['sourcecode_uri']; ?></uri>
   </sourcecode>
   <releases>
     <?php foreach ($releases as $release): ?>
