@@ -142,6 +142,7 @@ function fserver_views_default_views() {
     'title' => '',
     'description' => '',
     'weight' => 0,
+    'name' => 'navigation',
   ));
 
   $views[$view->name] = $view;
@@ -895,6 +896,7 @@ function fserver_views_default_views() {
     'title' => '',
     'description' => '',
     'weight' => 0,
+    'name' => 'navigation',
   ));
 
   $views[$view->name] = $view;
@@ -1652,8 +1654,8 @@ function fserver_views_default_views() {
       'link' => 'nid',
       'type' => 'field_fserver_type_value',
       'redirect' => 'field_fserver_redirect_value',
-      'scmtype' => 'field_fserver_method_value',
-      'scmurl' => 'field_fserver_repository_value',
+      'sourcecode_type' => 'field_fserver_method_value',
+      'sourcecode_uri' => 'field_fserver_repository_value',
     ),
     'release' => array(
       'version_major' => 'field_fserver_versionmajor_value',
