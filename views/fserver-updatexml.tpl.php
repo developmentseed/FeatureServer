@@ -16,6 +16,10 @@
       <value><?php print $project['type'] ?></value>
     </term>
   </terms>
+  <sourcecode>
+    <type><?php print $project['scmtype']; ?></type>
+    <url><?php print $project['scmurl']; ?></url>
+  </sourcecode>
   <releases>
     <?php foreach ($releases as $release): ?>
     <release>
