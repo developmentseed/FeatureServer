@@ -5,7 +5,7 @@ class fserver_plugin_style_updatexml extends views_plugin_style {
    * List of project XML elements.
    */
   private function project_elements() {
-    return array('title', 'short_name', 'api_version', 'link', 'type', 'redirect', 'scmtype', 'scmurl');
+    return array('title', 'short_name', 'api_version', 'link', 'type', 'redirect', 'sourcecode_type', 'sourcecode_uri');
   }
 
   /**
