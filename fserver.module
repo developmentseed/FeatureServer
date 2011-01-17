@@ -98,28 +98,28 @@ function fserver_cck_options($type = 'core') {
   switch ($type) {
     case 'core':
       $result =  drupal_map_assoc(array('5.x', '6.x', '7.x'));
-
+    break;
     case 'major':
       $major = range(0, 50);
       unset($major[0]);
       $result =  $major;
-
+    break;
     case 'method':
       $result =  array(
         0 => t('Manual upload'),
         'git' => t('GIT repository tags'),
         'svn' => t('SVN repository tags folder'),
       );
-
+    break;
     case 'patch':
       $result = range(0, 50);
-
+    break;
     case 'recommended':
       $result =  array(t('Not recommended'), t('Recommended'));
-
+    break;
     case 'security':
       $result =  array(t('Not a security release'), t('Security release'));
-
+    break;
     case 'type':
       // We don't use t() here as the update XML requires these strings to be uniform.
       $result = array(
