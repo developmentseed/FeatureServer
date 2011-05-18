@@ -507,7 +507,7 @@ class FserverProject_svn {
           }
           drush_op('drush_shell_exec', 'svn checkout --non-interactive  %s/tags/%s %s', $this->FserverProject->repository, $vc, $this->path);
           $this->FserverProject->write_package_info($tag, array('.svn'));
-          drush_op('drush_shell_exec', 'tar -Pcf - --exclude=".svn" --transform="s,%1$s,%2$s," %1$s | gzip > %3$s/%4$s.tgz', $this->path, $this->FserverProject->name, $base);
+          drush_op('drush_shell_exec', 'tar -Pcf - --exclude=".svn" --transform="s,%1$s,%2$s," %1$s | gzip > %3$s/%4$s.tgz', $this->path, $this->FserverProject->name, $file_path, $base);
 
           // @TODO
           // We need to properly chown and permission these directories.
