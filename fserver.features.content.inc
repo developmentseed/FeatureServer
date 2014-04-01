@@ -508,11 +508,20 @@ function fserver_content_default_fields() {
         ),
       ),
       'default_value_php' => NULL,
+      'node_link' => array(
+        'teaser' => 0,
+        'full' => 0,
+        'title' => '',
+        'hover_title' => '',
+        'destination' => 'node',
+      ),
+      'fallback' => 'select',
+      'edit_fallback' => 0,
       'label' => 'Project',
       'weight' => '-11',
-      'description' => '',
-      'type' => 'nodereference_select',
-      'module' => 'nodereference',
+      'description' => 'Select your project from the box.',
+      'type' => 'nodereference_url',
+      'module' => 'nodereference_url',
     ),
   );
 
