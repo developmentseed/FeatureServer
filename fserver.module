@@ -97,32 +97,32 @@ function fserver_nodeapi(&$node, $op, $a3 = NULL, $a4 = NULL) {
 function fserver_cck_options($type = 'core') {
   switch ($type) {
     case 'core':
-      return drupal_map_assoc(array('5.x', '6.x', '7.x'));
-
+      $result =  drupal_map_assoc(array('5.x', '6.x', '7.x'));
+    break;
     case 'major':
       $major = range(0, 50);
       unset($major[0]);
-      return $major;
-
+      $result =  $major;
+    break;
     case 'method':
-      return array(
+      $result =  array(
         0 => t('Manual upload'),
         'git' => t('GIT repository tags'),
         'svn' => t('SVN repository tags folder'),
       );
-
+    break;
     case 'patch':
-      return range(0, 50);
-
+      $result = range(0, 50);
+    break;
     case 'recommended':
-      return array(t('Not recommended'), t('Recommended'));
-
+      $result =  array(t('Not recommended'), t('Recommended'));
+    break;
     case 'security':
-      return array(t('Not a security release'), t('Security release'));
-
+      $result =  array(t('Not a security release'), t('Security release'));
+    break;
     case 'type':
       // We don't use t() here as the update XML requires these strings to be uniform.
-      return array(
+      $result = array(
         // 'core' => 'Drupal project',
         'profile' => 'Installation profiles',
         'module' => 'Modules',
@@ -131,6 +131,10 @@ function fserver_cck_options($type = 'core') {
         // 'translation' => 'Translations',
       );
   }
+
+  drupal_alter('fserver_cck_options', $result, $type);
+
+  return $result;
 }
 
 /**

@@ -5,36 +5,30 @@
   <title><?php print $project['title'] ?></title>
   <short_name><?php print $project['short_name'] ?></short_name>
   <api_version><?php print $project['api_version'] ?></api_version>
-
   <recommended_major><?php print $project['recommended_major'] ?></recommended_major>
   <supported_majors><?php print $project['supported_majors'] ?></supported_majors>
   <default_major><?php print $project['recommended_major'] ?></default_major>
-
   <project_status>1</project_status>
-
   <link><?php print $project['link'] ?></link>
-
   <terms>
     <term>
       <name>Projects</name>
       <value><?php print $project['type'] ?></value>
     </term>
   </terms>
-
+  <sourcecode>
+    <type><?php print $project['sourcecode_type']; ?></type>
+    <uri><?php print $project['sourcecode_uri']; ?></uri>
+  </sourcecode>
   <releases>
     <?php foreach ($releases as $release): ?>
-
     <release>
-
       <name><?php print $release['name'] ?></name>
       <version><?php print $release['version'] ?></version>
-
       <version_major><?php print $release['version_major'] ?></version_major>
       <version_patch><?php print $release['version_patch'] ?></version_patch>
       <?php if (!empty($release['version_extra'])): ?><version_extra><?php print $release['version_extra'] ?></version_extra><?php endif; ?>
-
       <status>published</status>
-
       <release_link><?php print $release['release_link'] ?></release_link>
       <download_link><?php print $release['download_link'] ?></download_link>
       <date><?php print $release['date'] ?></date>
@@ -46,10 +40,8 @@
           <value>Security update</value>
         </term>
       </terms><?php endif; ?>
-
     </release>
     <?php endforeach; ?>
-
   </releases>
 </project>
 <?php else: ?>

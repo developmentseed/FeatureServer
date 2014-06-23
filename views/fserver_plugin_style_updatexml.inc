@@ -5,7 +5,7 @@ class fserver_plugin_style_updatexml extends views_plugin_style {
    * List of project XML elements.
    */
   private function project_elements() {
-    return array('title', 'short_name', 'api_version', 'link', 'type', 'redirect');
+    return array('title', 'short_name', 'api_version', 'link', 'type', 'redirect', 'sourcecode_type', 'sourcecode_uri');
   }
 
   /**
@@ -95,6 +95,8 @@ class fserver_plugin_style_updatexml extends views_plugin_style {
         }
       }
     }
+    // @TODO: need to correct the api version in project tag, if we have multiple api versions
+    // we need the key "all" instead of 5.x / 6.x / 7.x /...
 
     // If this is a legacy project and has a redirect URL use it immediately.
     if (!empty($project['redirect'])) {
@@ -112,6 +114,10 @@ class fserver_plugin_style_updatexml extends views_plugin_style {
     $releases = array();
     $project['recommended_major'] = '';
     $project['supported_majors'] = array();
+    
+    // Helper array for detecting multiple API Versions... (not the best way?)
+    $multiple_api_versions = array();
+
     foreach ($vars['rows'] as $num => $row) {
       foreach ($vars['options']['release'] as $element => $field) {
         $alias = $fields[$field]->field_alias;
@@ -131,7 +137,15 @@ class fserver_plugin_style_updatexml extends views_plugin_style {
           }
         }
       }
-
+      
+      // manual mapping from project api field to release api field
+      $project_api_version_mapping = $fields[$vars['options']['project']['api_version']]->field_alias;
+      if(isset($row->{$project_api_version_mapping})) {
+        $releases[$num]['api_version'] = $fields[$vars['options']['project']['api_version']]->theme($row);
+        // add current version to helper array...
+        $multiple_api_versions[$releases[$num]['api_version']] = $releases[$num]['api_version'];
+      }
+      
       if ($releases[$num]['recommended']) {
         // Use the first major version for the project major.
         // The list is sorted by "major desc", this way the latest branch will be
@@ -144,7 +158,7 @@ class fserver_plugin_style_updatexml extends views_plugin_style {
       }
 
       // Version
-      $releases[$num]['version'] = "{$project['api_version']}-{$releases[$num]['version_major']}.{$releases[$num]['version_patch']}";
+      $releases[$num]['version'] = "{$releases[$num]['api_version']}-{$releases[$num]['version_major']}.{$releases[$num]['version_patch']}";
       if (!empty($releases[$num]['version_extra'])) {
         $releases[$num]['version'] .= "-{$releases[$num]['version_extra']}";
       }
@@ -158,8 +172,14 @@ class fserver_plugin_style_updatexml extends views_plugin_style {
       // Download link
       $releases[$num]['download_link'] = file_create_url($releases[$num]['download_link']);
     }
+
     sort($project['supported_majors']);
     $project['supported_majors'] = implode(",", $project['supported_majors']);
+    
+    // overwrite projects api version if we have multiple versions to "all"
+    if (count($multiple_api_versions) > 1) {
+      $project['api_version'] = 'all';
+    }
 
     // Finalize
     $vars['project'] = $project;

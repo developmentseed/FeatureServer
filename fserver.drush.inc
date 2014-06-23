@@ -22,15 +22,12 @@
 function fserver_drush_command() {
   $items = array();
   $items['fserver-status'] = array(
-    'callback' => 'fserver_drush_status',
     'description' => 'Determine the packaging status of a project.',
   );
   $items['fserver-package'] = array(
-    'callback' => 'fserver_drush_package',
     'description' => 'Update packaging for a project.',
   );
   $items['fserver-distro'] = array(
-    'callback' => 'fserver_drush_distro',
     'description' => 'Update packaging for a distribution.',
   );
   return $items;
@@ -53,7 +50,7 @@ function fserver_drush_help($section) {
 /**
  * Package new releases for a specified project or all.
  */
-function fserver_drush_package() {
+function drush_fserver_package() {
   if (!drush_get_option('uri') && !drush_get_option('l')) {
     drush_die('You must use the --uri option to specify the location of this site.');
   }
@@ -94,7 +91,7 @@ function fserver_drush_package() {
 /**
  * Display project packaging status.
  */
-function fserver_drush_status() {
+function drush_fserver_status() {
   $projects = _fserver_drush_get_projects();
 
   // Filter the project list by the argument.
@@ -276,7 +273,7 @@ class FserverProject {
       $packaging[] = "version = \"{$tag['version']}\"";
       $packaging = "\n" . implode("\n", $packaging);
 
-      $files = file_scan_directory($this->backend->path, '.info', $exclude_mask);
+      $files = file_scan_directory($this->backend->path, '.info$', $exclude_mask);
       foreach ($files as $path => $file) {
         // @TODO: Parse the info file or not?
         $info_file = file_get_contents($file->filename);
@@ -348,23 +345,15 @@ class FserverProject_git {
       $this->init_wc();
 
       // Retrieve tag info
-      _drush_shell_exec_output_set(' '); // Clear output cache.
-      drush_op('drush_shell_exec', "git --git-dir={$this->path}/.git show {$vc}");
+     _drush_shell_exec_output_set(' '); // Clear output cache.
+      drush_op('drush_shell_exec', "git --git-dir={$this->path}/.git log -1 --pretty=format:%%ct {$vc}");
       $info = drush_shell_exec_output();
-      if ($info[0] == "tag {$vc}") {
-        $info = implode("\n", $info);
-        $info = explode("\n\n", $info);
-        list($basic, $commit, $message) = $info;
-
-        $basic = explode("\n", $basic);
-        array_shift($basic); // Removes tag line
-        array_shift($basic); // Removes author line
-
-        // Set timestamp on the tag
-        $date = array_shift($basic);
-        $date = strtotime(trim(substr($date, strpos($date, ':') + 1)));
-        $tag['timestamp'] = is_numeric($date) ? $date : time();
-      }
+      $tag['timestamp'] = $info[0];
+      drush_op('drush_shell_exec', "git --git-dir={$this->path}/.git tag -l {$vc} -n 1000");
+      $info = drush_shell_exec_output();
+      // Remove the tag from the first line of the message:
+      $info[0] = str_replace($vc, '', $info[0]);
+      $tag['message'] = implode("\n", $info);
       return $tag;
     }
   }
@@ -381,7 +370,7 @@ class FserverProject_git {
         // Create the directory if it doesn't exist.
         if (file_check_directory($file_path, TRUE)) {
           $vc = $tag['original'];
-          drush_op('drush_shell_exec', "git --git-dir={$this->path}/.git checkout {$vc}");
+          drush_op('drush_shell_exec', "git --git-dir={$this->path}/.git --work-tree={$this->path} checkout {$vc}");
           $this->FserverProject->write_package_info($tag, array('.git'));
           drush_op('drush_shell_exec', "tar -Pcf - --exclude='.git' --transform='s,{$this->path},{$this->FserverProject->name},' {$this->path} | gzip > {$file_path}/{$base}.tgz");
 
@@ -564,7 +553,7 @@ function fserver_posix_groupname() {
   return NULL;
 }
 
-function fserver_drush_distro() {
+function drush_fserver_distro() {
   if (!drush_get_option('version')) {
     drush_die('No version supplied, please use --version to specify a version for your release.');
   }
