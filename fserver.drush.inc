@@ -276,7 +276,7 @@ class FserverProject {
       $packaging[] = "version = \"{$tag['version']}\"";
       $packaging = "\n" . implode("\n", $packaging);
 
-      $files = file_scan_directory($this->backend->path, '.info', $exclude_mask);
+      $files = file_scan_directory($this->backend->path, '\.info$', $exclude_mask);
       foreach ($files as $path => $file) {
         // @TODO: Parse the info file or not?
         $info_file = file_get_contents($file->filename);
