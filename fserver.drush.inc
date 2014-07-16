@@ -22,15 +22,12 @@
 function fserver_drush_command() {
   $items = array();
   $items['fserver-status'] = array(
-    'callback' => 'fserver_drush_status',
     'description' => 'Determine the packaging status of a project.',
   );
   $items['fserver-package'] = array(
-    'callback' => 'fserver_drush_package',
     'description' => 'Update packaging for a project.',
   );
   $items['fserver-distro'] = array(
-    'callback' => 'fserver_drush_distro',
     'description' => 'Update packaging for a distribution.',
   );
   return $items;
@@ -53,7 +50,7 @@ function fserver_drush_help($section) {
 /**
  * Package new releases for a specified project or all.
  */
-function fserver_drush_package() {
+function drush_fserver_package() {
   if (!drush_get_option('uri') && !drush_get_option('l')) {
     drush_die('You must use the --uri option to specify the location of this site.');
   }
@@ -94,7 +91,7 @@ function fserver_drush_package() {
 /**
  * Display project packaging status.
  */
-function fserver_drush_status() {
+function drush_fserver_status() {
   $projects = _fserver_drush_get_projects();
 
   // Filter the project list by the argument.
@@ -349,7 +346,7 @@ class FserverProject_git {
 
       // Retrieve tag info
       _drush_shell_exec_output_set(' '); // Clear output cache.
-      drush_op('drush_shell_exec', "git --git-dir={$this->path}/.git show {$vc}");
+      drush_op('drush_shell_exec', "git --git-dir={$this->path}/.git --work-tree={$this->path} show {$vc}");
       $info = drush_shell_exec_output();
       if ($info[0] == "tag {$vc}") {
         $info = implode("\n", $info);
@@ -381,7 +378,7 @@ class FserverProject_git {
         // Create the directory if it doesn't exist.
         if (file_check_directory($file_path, TRUE)) {
           $vc = $tag['original'];
-          drush_op('drush_shell_exec', "git --git-dir={$this->path}/.git checkout {$vc}");
+          drush_op('drush_shell_exec', "git --git-dir={$this->path}/.git --work-tree={$this->path} checkout {$vc}");
           $this->FserverProject->write_package_info($tag, array('.git'));
           drush_op('drush_shell_exec', "tar -Pcf - --exclude='.git' --transform='s,{$this->path},{$this->FserverProject->name},' {$this->path} | gzip > {$file_path}/{$base}.tgz");
 
@@ -564,7 +561,7 @@ function fserver_posix_groupname() {
   return NULL;
 }
 
-function fserver_drush_distro() {
+function drush_fserver_distro() {
   if (!drush_get_option('version')) {
     drush_die('No version supplied, please use --version to specify a version for your release.');
   }
