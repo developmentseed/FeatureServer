@@ -306,7 +306,7 @@ class FserverProject_git {
    */
   function __destruct() {
     if (isset($this->path)) {
-      drush_op('drush_shell_exec', "rm -rf {$this->path}");
+      drush_op('drush_shell_exec', 'rm -rf %s', $this->path);
     }
   }
 
@@ -316,7 +316,7 @@ class FserverProject_git {
   function init_wc() {
     if (!isset($this->path)) {
       $this->path = file_directory_temp() . '/fserver_git_'. $this->FserverProject->name .'_'. time();
-      drush_op('drush_shell_exec', "git clone {$this->FserverProject->repository} {$this->path}");
+      drush_op('drush_shell_exec', 'git clone %s %s', $this->FserverProject->repository, $this->path);
     }
   }
 
@@ -327,7 +327,7 @@ class FserverProject_git {
     if (!isset($this->tags)) {
       $this->tags = array();
       _drush_shell_exec_output_set(' '); // Clear output cache.
-      drush_op('drush_shell_exec', "git ls-remote --tags {$this->FserverProject->repository} | awk '{print $2;}'");
+      drush_op('drush_shell_exec', 'git ls-remote --tags %s | awk \'{print $2;}\'', $this->FserverProject->repository);
       $lines = drush_shell_exec_output();
       while ($line = array_shift($lines)) {
         $vc = array_pop(explode('/', $line));
@@ -349,7 +349,7 @@ class FserverProject_git {
 
       // Retrieve tag info
       _drush_shell_exec_output_set(' '); // Clear output cache.
-      drush_op('drush_shell_exec', "git --git-dir={$this->path}/.git show {$vc}");
+      drush_op('drush_shell_exec', 'git --git-dir=%s/.git show %s', $this->path, $vc);
       $info = drush_shell_exec_output();
       if ($info[0] == "tag {$vc}") {
         $info = implode("\n", $info);
@@ -381,9 +381,9 @@ class FserverProject_git {
         // Create the directory if it doesn't exist.
         if (file_check_directory($file_path, TRUE)) {
           $vc = $tag['original'];
-          drush_op('drush_shell_exec', "git --git-dir={$this->path}/.git checkout {$vc}");
+          drush_op('drush_shell_exec', 'git --git-dir=%s/.git checkout %s', $this->path, $vc);
           $this->FserverProject->write_package_info($tag, array('.git'));
-          drush_op('drush_shell_exec', "tar -Pcf - --exclude='.git' --transform='s,{$this->path},{$this->FserverProject->name},' {$this->path} | gzip > {$file_path}/{$base}.tgz");
+          drush_op('drush_shell_exec', 'tar -Pcf - --exclude=".git" --transform="s,%1$s,%2$s," %1$s | gzip > %3$s/%4$s.tgz', $this->path, $this->FserverProject->name, $file_path, $base);
 
           // @TODO
           // We need to properly chown and permission these directories.
@@ -429,7 +429,7 @@ class FserverProject_svn {
    */
   function __destruct() {
     if (isset($this->path)) {
-      drush_op('drush_shell_exec', "rm -rf {$this->path}");
+      drush_op('drush_shell_exec', 'rm -rf %s', $this->path);
     }
   }
 
@@ -439,7 +439,7 @@ class FserverProject_svn {
   function init_wc() {
     if (!isset($this->path)) {
       $this->path = file_directory_temp() . '/fserver_svn_'. $this->FserverProject->name .'_'. time();
-      //drush_op('drush_shell_exec', "git clone {$this->FserverProject->repository} {$this->path}");
+      //drush_op('drush_shell_exec', 'git clone %s %s', $this->FserverProject->repository, $this->path);
     }
   }
 
@@ -450,7 +450,7 @@ class FserverProject_svn {
     if (!isset($this->tags)) {
       $this->tags = array();
       _drush_shell_exec_output_set(' '); // Clear output cache.
-      drush_op('drush_shell_exec', "svn ls {$this->FserverProject->repository}/tags | awk '{print $1;}'");
+      drush_op('drush_shell_exec', 'svn ls %s/tags | awk \'{print $1;}\'', $this->FserverProject->repository);
       $lines = drush_shell_exec_output();
       while ($line = array_shift($lines)) {
         $vc = array_shift(explode('/', $line));
@@ -472,7 +472,7 @@ class FserverProject_svn {
 
       // Retrieve tag info
       _drush_shell_exec_output_set(' '); // Clear output cache.
-      drush_op('drush_shell_exec', "svn info --non-interactive --xml {$this->FserverProject->repository}/tags/{$vc}");
+      drush_op('drush_shell_exec', 'svn info --non-interactive --xml %s/tags/%s', $this->FserverProject->repository, $vc);
       $info = drush_shell_exec_output();
       if (!empty($info)) {
         $info = implode("\n", $info);
@@ -503,11 +503,11 @@ class FserverProject_svn {
           $vc = $tag['original'];
           if (is_dir($this->path)) {
             // I'd quite like to do a switch here, but couldn't get it to work reliably.
-            drush_op('drush_shell_exec', "rm -rf {$this->path}");
+            drush_op('drush_shell_exec', 'rm -rf %s', $this->path);
           }
-          drush_op('drush_shell_exec', "svn checkout --non-interactive  {$this->FserverProject->repository}/tags/{$vc} {$this->path}");
+          drush_op('drush_shell_exec', 'svn checkout --non-interactive  %s/tags/%s %s', $this->FserverProject->repository, $vc, $this->path);
           $this->FserverProject->write_package_info($tag, array('.svn'));
-          drush_op('drush_shell_exec', "tar -Pcf - --exclude='.svn' --transform='s,{$this->path},{$this->FserverProject->name},' {$this->path} | gzip > {$file_path}/{$base}.tgz");
+          drush_op('drush_shell_exec', 'tar -Pcf - --exclude=".svn" --transform=%s %s | gzip > %s/%s.tgz', "s,{$this->path},{$this->FserverProject->name},", $this->path, $file_path, $base);
 
           // @TODO
           // We need to properly chown and permission these directories.
@@ -631,7 +631,7 @@ class FserverDistro {
    */
   function __destruct() {
     if (isset($this->path)) {
-      drush_op('drush_shell_exec', "rm -rf {$this->path}");
+      drush_op('drush_shell_exec', 'rm -rf %s', $this->path);
     }
   }
 
@@ -757,7 +757,7 @@ class FserverDistro {
     // Create the directory if it doesn't exist.
     if (file_check_directory($file_path, TRUE)) {
       drush_backend_invoke('make', array("{$this->path}/{$base}.make", "{$file_path}/{$base}", "--tar"));
-      drush_op('drush_shell_exec', "mv {$file_path}/{$base}.tar.gz {$file_path}/{$base}.tgz");
+      drush_op('drush_shell_exec', 'mv %1$s/%2$s.tar.gz %1$s/%2$s.tgz', $file_path, $base);
 
       // @TODO
       // We need to properly chown and permission these directories.
